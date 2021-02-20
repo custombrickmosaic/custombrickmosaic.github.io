@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+
+    <title>Custom Brick Mosaic Generator</title>
+
+    <style>
+        .img-fluid{
+            display: none;
+        }
+
+        tr {
+            line-height: 10px;
+            min-height: 10px;
+            height: 10px;
+        }
+
+        canvas {
+            background-color: #eeeeee; 
+            width: 100%;
+            height: auto;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container-lg mt-3">
+        <div class="row py-3">
+			<h1>Custom Brick Mosaic Generator</h1>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <label for="imageFile" class="form-label"><strong>1. Choose a source image (It will not be uploaded)</strong></label>
+				</div>
+				<div class="row pb-4 px-3">
+					<input class="form-control mb-2" type="file" id="imageFile" name="imageFile">
+					<img src="" class="img-thumbnail" alt="No image chosen" id="previewImg">
+					<!--span class="image-preview__default-text", id="image-preview__default-text">No image chosen</span-->
+                </div>
+                <!--div class="row pb-4">
+                    <label class="form-label"><strong>2. Select the size of the mosaic</strong></label>
+                    <div class="col mb-2 ps-3">
+                        <form class="form-floating">
+                            <input type="number" class="form-control" id="widthInputValue" placeholder="48" value="48">
+                            <label for="widthInputValue">Width</label>
+                        </form>
+                    </div>
+                    <div class="col mb-2 pe-3">
+                        <form class="form-floating">
+                            <input type="number" class="form-control" id="heightInputValue" placeholder="48" value="48">
+                            <label for="heightInputValue">Height</label>
+                        </form>
+                    </div>
+				</div-->
+                <div class="row pb-4">
+					<label class="form-label"><strong>2. Select the size of the mosaic</strong></label>
+					<div class="col mb-2 ps-3 pe-1">
+						<div class="input-group input-group-sm">
+							<div class="input-group-prepend">
+								<span class="input-group-text">Width</span>
+							</div>
+							<input type="number" class="form-control" id="widthInputValue" placeholder="48" value="48">
+						</div>
+					</div>
+					<div class="col mb-2 pe-3 ps-1">
+						<div class="input-group input-group-sm">
+							<div class="input-group-prepend">
+								<span class="input-group-text">Height</span>
+							</div>
+							<input type="number" class="form-control" id="heightInputValue" placeholder="48" value="48">
+						</div>
+					</div>
+                </div>
+                <!--div class="row">
+                    <label for="partTable" class="form-label">3. Adjust the number of parts for each color</label>
+                    <table class="table table-sm" id="partTable">
+                        <thead>
+                          <tr>
+                            <th scope="col"></th>
+                            <th scope="col">Color</th>
+                            <th scope="col">Count</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <th class="align-middle text-center"><input type="color" id="color" value="#563d7c" title="Choose brick color"></th>
+                            <td class="align-middle">#563d7c</td>
+                            <td class="align-middle">134</td>
+                          </tr>
+                          <tr>
+                            <th class="align-middle text-center"><input type="color" id="color" value="#33aa22" title="Choose brick color"></th>
+                            <td class="align-middle">#33aa22</td>
+                            <td class="align-middle">277</td>
+                          </tr>
+                          <tr>
+                            <th class="align-middle text-center"><input type="color" id="color" value="#3322aa" title="Choose brick color"></th>
+                            <td class="align-middle">#3322aa</td>
+                            <td class="align-middle">1342</td>
+                          </tr>
+                          <tr>
+                            <th class="align-middle text-center"><button type="button" class="btn btn-primary btn-sm" id="addTableRow">+</button></th>
+                            <td class="align-middle">Add color row</td>
+                            <td class="align-middle"></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                </div>
+                <div class="row pb-5">
+                    <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                        Select Preset
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                        <button class="dropdown-item" type="button" id="dropdownButtonBeatles">Beatles</button>
+                        <button class="dropdown-item" type="button" id="dropdownButtonMonroe">Monroe</button>
+                        <li><hr class="dropdown-divider"></li>
+                        <button class="dropdown-item" type="button" id="dropdownButtonCustom">Custom</button>
+                    </ul>
+                    </div>
+                </div-->
+				<div class="row pb-2">
+					<label for="partListGroup" class="form-label"><strong>3. Choose a color preset</strong></label>
+					<div class="list-group px-3" id="partListGroup">
+					  <button type="button" class="list-group-item list-group-item-action active pt-0 pb-1" id="dropdownButtonBeatles">Beatles</button>
+					  <button type="button" class="list-group-item list-group-item-action pt-0 pb-1" id="dropdownButtonMonroe">Monroe</button>
+					  <button type="button" class="list-group-item list-group-item-action pt-0 pb-1" id="dropdownButtonIronman">Ironman</button>
+					  <button type="button" class="list-group-item list-group-item-action pt-0 pb-1" id="dropdownButtonSith">Sith</button>
+					  <button type="button" class="list-group-item list-group-item-action pt-0 pb-1" id="dropdownButtonHogwarts">Hogwarts</button>
+					</div>
+				</div>
+				<div class="row pb-4">
+					<label for="partLimitsBtnGroup" class="form-label text-center">Do you have multiple sets?</label>
+					<div class="btn-group px-3" role="group" aria-label="usePartLimits" id="partLimitsBtnGroup">
+					    <button type="button" class="btn btn-secondary active" id="partLimits1Button">1</button>
+						<button type="button" class="btn btn-secondary" id="partLimits2Button">2</button>
+						<button type="button" class="btn btn-secondary" id="partLimits3Button">3</button>
+						<button type="button" class="btn btn-secondary" id="partLimits4Button">4</button>
+					    <button type="button" class="btn btn-secondary" id="unlimitedPartsButton">Unlimited parts</button>
+					</div>
+				</div>
+                <div class="row">
+					<label for="buttonCalculate" class="form-label"><strong>4. Run calculation</strong></label>
+				</div>
+				<div class="row pb-4 px-3">
+					<button type="button mx-1" class="btn btn-primary" id="buttonCalculate" disabled>Calculate mosaic</button>
+                </div>
+                <div class="row">
+					<label for="buttonDownload" class="form-label"><strong>5. Download instructions</strong></label>
+				</div>
+				<div class="row pb-5 mb-5 px-3">
+					<button type="button" class="btn btn-primary" id="buttonDownload" disabled>Download</button>
+                </div>
+            </div>
+            <div class="col-md-8 mb-5 pb-5">
+                <label for="previewImg" class="form-label"><strong>Mosaic preview</strong></label>
+                <canvas id="previewMosaicCanvas" width="800" height="800" style="border:1px solid #000000;">
+                    Sorry, your browser doesn't support the &lt;canvas&gt; element.
+                </canvas>
+                <!--span class="image-preview__default-text", id="image-preview__default-text">No image chosen</span-->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+    <script src=".\brickMosaic.js"> </script>
+    
+</body>
+</html>
