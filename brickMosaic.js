@@ -33,11 +33,6 @@ document.getElementById("imageFile").addEventListener("change", function() {
 					var thumbnailCanvas = document.getElementById('thumbnailCanvas');
 					var thumbnailContext = thumbnailCanvas.getContext('2d');
 					
-					if (previewImage.width == previewImage.height) {
-						document.getElementById("cropOrScaleImageBtnGroup").hidden = true;
-					} else {
-						document.getElementById("cropOrScaleImageBtnGroup").hidden = false;
-					}
 					if (document.getElementById('cropCenterSquareButton').classList.value.includes("active")) {
 						thumbnailContext.drawImage(previewImage, 
 										Math.max(0,(previewImage.width-previewImage.height/thumbnailCanvas.height*thumbnailCanvas.width)/2),
@@ -53,6 +48,7 @@ document.getElementById("imageFile").addEventListener("change", function() {
 										0, 0,
 										thumbnailCanvas.width, thumbnailCanvas.height);
 					}
+					document.getElementById("cropOrScaleImageBtnGroup").hidden = false;
 					document.getElementById("thumbnailCanvas").hidden = false;
 					document.getElementById("buttonDownloadPDF").disabled = true;
 					
