@@ -38,13 +38,12 @@ document.getElementById("imageFile").addEventListener("change", function() {
 					} else {
 						document.getElementById("cropOrScaleImageBtnGroup").hidden = false;
 					}
-					
 					if (document.getElementById('cropCenterSquareButton').classList.value.includes("active")) {
 						thumbnailContext.drawImage(previewImage, 
 										Math.max(0,(previewImage.width-previewImage.height/thumbnailCanvas.height*thumbnailCanvas.width)/2),
 										Math.max(0,(previewImage.height-previewImage.width/thumbnailCanvas.width*thumbnailCanvas.height)/2),
-										Math.min(previewImage.width, previewImage.height),
-										Math.min(previewImage.width, previewImage.height) * thumbnailCanvas.height/thumbnailCanvas.width,
+										previewImage.width - Math.max(0,(previewImage.width-previewImage.height/thumbnailCanvas.height*thumbnailCanvas.width)),
+										previewImage.height - Math.max(0,(previewImage.height-previewImage.width/thumbnailCanvas.width*thumbnailCanvas.height)),
 										0, 0,
 										thumbnailCanvas.width, thumbnailCanvas.height);
 					} else {
@@ -98,7 +97,6 @@ document.getElementById("imageFile").addEventListener("change", function() {
 
 document.getElementById("buttonCalculate").addEventListener('click', function () {
 	var thumbnailCanvas = document.getElementById('thumbnailCanvas');
-	var thumbnailContext = thumbnailCanvas.getContext('2d');
 	
 	var resizeCanvas = document.createElement('canvas');
 	resizeCanvas.width = document.getElementById("widthInputValue").value;
@@ -142,8 +140,8 @@ document.getElementById("widthInputValue").addEventListener('change', function (
 		thumbnailContext.drawImage(previewImage, 
 						Math.max(0,(previewImage.width-previewImage.height/thumbnailCanvas.height*thumbnailCanvas.width)/2),
 						Math.max(0,(previewImage.height-previewImage.width/thumbnailCanvas.width*thumbnailCanvas.height)/2),
-						Math.min(previewImage.width, previewImage.height),
-						Math.min(previewImage.width, previewImage.height) * thumbnailCanvas.height/thumbnailCanvas.width,
+						previewImage.width - Math.max(0,(previewImage.width-previewImage.height/thumbnailCanvas.height*thumbnailCanvas.width)),
+						previewImage.height - Math.max(0,(previewImage.height-previewImage.width/thumbnailCanvas.width*thumbnailCanvas.height)),
 						0, 0,
 						thumbnailCanvas.width, thumbnailCanvas.height);
 	} else {
@@ -173,8 +171,8 @@ document.getElementById("heightInputValue").addEventListener('change', function 
 		thumbnailContext.drawImage(previewImage, 
 						Math.max(0,(previewImage.width-previewImage.height/thumbnailCanvas.height*thumbnailCanvas.width)/2),
 						Math.max(0,(previewImage.height-previewImage.width/thumbnailCanvas.width*thumbnailCanvas.height)/2),
-						Math.min(previewImage.width, previewImage.height),
-						Math.min(previewImage.width, previewImage.height) * thumbnailCanvas.height/thumbnailCanvas.width,
+						previewImage.width - Math.max(0,(previewImage.width-previewImage.height/thumbnailCanvas.height*thumbnailCanvas.width)),
+						previewImage.height - Math.max(0,(previewImage.height-previewImage.width/thumbnailCanvas.width*thumbnailCanvas.height)),
 						0, 0,
 						thumbnailCanvas.width, thumbnailCanvas.height);
 	} else {
@@ -246,12 +244,12 @@ document.getElementById("cropCenterSquareButton")
 		var thumbnailCanvas = document.getElementById('thumbnailCanvas');
 		var thumbnailContext = thumbnailCanvas.getContext('2d');
 		thumbnailContext.drawImage(previewImage, 
-						Math.max(0,(previewImage.width-previewImage.height/thumbnailCanvas.height*thumbnailCanvas.width)/2),
-						Math.max(0,(previewImage.height-previewImage.width/thumbnailCanvas.width*thumbnailCanvas.height)/2),
-						Math.min(previewImage.width, previewImage.height),
-						Math.min(previewImage.width, previewImage.height) * thumbnailCanvas.height/thumbnailCanvas.width,
-						0, 0,
-						thumbnailCanvas.width, thumbnailCanvas.height);
+					Math.max(0,(previewImage.width-previewImage.height/thumbnailCanvas.height*thumbnailCanvas.width)/2),
+					Math.max(0,(previewImage.height-previewImage.width/thumbnailCanvas.width*thumbnailCanvas.height)/2),
+					previewImage.width - Math.max(0,(previewImage.width-previewImage.height/thumbnailCanvas.height*thumbnailCanvas.width)),
+					previewImage.height - Math.max(0,(previewImage.height-previewImage.width/thumbnailCanvas.width*thumbnailCanvas.height)),
+					0, 0,
+					thumbnailCanvas.width, thumbnailCanvas.height);
     });
 	
 document.getElementById("scaleToSquareButton")
