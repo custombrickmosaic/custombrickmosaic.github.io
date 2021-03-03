@@ -1,7 +1,4 @@
-const imageFile = document.getElementById("imageFile");
 const previewImage = document.getElementById("previewImg");
-const widthInput = document.getElementById("widthInputValue");
-const heightInput = document.getElementById("heightInputValue");
 
 document.getElementById("buttonCalculate").disabled = true;
 document.getElementById("buttonDownloadPDF").disabled = true;
@@ -9,131 +6,199 @@ document.getElementById("buttonDownloadPDF").disabled = true;
 var imageData = [];
 var partList = [];
 var finalMosaicIm = [];
+var validImagePresent = false;
 
-imageFile.addEventListener("change", function() {
-    const file = this.files[0]
 
-    // Ensure it's an image
-    if(file.type.match(/image.*/)) {
-        const reader = new FileReader();
+document.getElementById("imageFile").addEventListener("change", function() {
+//function preview_image(event) {
+	//if(event.target.files[0].type.match(/image.*/)) {
+	validImagePresent = false;
+	if(this.files[0].type.match(/image.*/)) {
+		var reader = new FileReader();
+		reader.onload = function()
+		{
+			previewImage.src = reader.result;
+			
+			previewImage.decode()
+				.then(() => {
+					
+					var thumbnailCanvas = document.getElementById('thumbnailCanvas');
+					var thumbnailContext = thumbnailCanvas.getContext('2d');
+					
+					if (previewImage.width == previewImage.height) {
+						document.getElementById("cropOrScaleImageBtnGroup").hidden = true;
+					} else {
+						document.getElementById("cropOrScaleImageBtnGroup").hidden = false;
+					}
+					
+					if (document.getElementById('cropCenterSquareButton').classList.value.includes("active")) {
+						thumbnailContext.drawImage(previewImage, 
+										Math.max(0,(previewImage.width-previewImage.height)/2),
+										Math.max(0,(previewImage.height-previewImage.width)/2),
+										Math.min(previewImage.width, previewImage.height),
+										Math.min(previewImage.width, previewImage.height),
+										0, 0,
+										thumbnailCanvas.width, thumbnailCanvas.height);
+					} else {
+						thumbnailContext.drawImage(previewImage, 
+										0, 0,
+										previewImage.width, previewImage.height,
+										0, 0,
+										thumbnailCanvas.width, thumbnailCanvas.height);
+					}
+					document.getElementById("thumbnailCanvas").hidden = false;
 
-        //PreviewDefaultText.style.display = "none";
-        previewImage.style.display = "block";
-		
-		previewImage.decode()
-		.then(() => {
-			console.log('previewImage decoded')
-		})
-		.catch((encodingError) => {
-			console.log('previewImage decoding error')
-			console.log(encodingError);
-			//alert('Error loading image. Please try again or choose another image.')
-		})
+					document.getElementById("buttonDownloadPDF").disabled = true;
+					
+					validImagePresent = true;
+					if ((document.getElementById("widthInputValue").value * document.getElementById("heightInputValue").value) <= updatePartList()) {
+						document.getElementById("buttonCalculate").disabled = false;
+					} else {
+						document.getElementById("buttonCalculate").disabled = true;
+					}
+				})
+				.catch((encodingError) => {
+					console.log(encodingError);
+					document.getElementById("thumbnailCanvas").hidden = true;
+					document.getElementById("cropOrScaleImageBtnGroup").hidden = true;
+					document.getElementById("buttonCalculate").disabled = true;
+					document.getElementById("buttonDownloadPDF").disabled = true;
+				})
+		}
+		reader.readAsDataURL(this.files[0]);
+	} else {
+		previewImage.setAttribute("src", "");
+		previewImage.style.display = null;
 
-        reader.addEventListener("load", function() {
-            previewImage.setAttribute("src", this.result);
-
-			document.getElementById("buttonCalculate").disabled = false;
-			document.getElementById("buttonDownloadPDF").disabled = true;
-        })
-		
-		// Reset canvas
-		var canvas = document.getElementById("previewMosaicCanvas");
-		var context = canvas.getContext('2d');
-		context.clearRect(0, 0, canvas.width, canvas.height); //clear html5 canvas
-
-        reader.readAsDataURL(file);
-    } else {
-        //PreviewDefaultText.style.display = null;
-        previewImage.style.display = null;
-
+        document.getElementById("thumbnailCanvas").hidden = true;
+		document.getElementById("cropOrScaleImageBtnGroup").hidden = true;
         document.getElementById("buttonCalculate").disabled = true;
 		document.getElementById("buttonDownloadPDF").disabled = true;
 
-        previewImage.setAttribute("src", "");
-        RGBResultTextarea.value = "";
-        if (file) {
+        if (this.files[0]) {
             alert('The file you selected is not a valid image file');
         }
-    }
+	}
+	
+	// Reset canvas
+	var canvas = document.getElementById("previewMosaicCanvas");
+	var context = canvas.getContext('2d');
+	context.clearRect(0, 0, canvas.width, canvas.height); //clear html5 canvas
 })
 
 
-/* var partListTableAddRowButton = document.getElementById("addTableRow")
-partListTableAddRowButton.addEventListener('click', function () {
-    var partListTable = document.getElementById("partTable")
-    //console.log(partListTable.rows.length)
-    var row = table.insertRow(partListTable.rows.length()-1);
-}) */
 
 
 document.getElementById("buttonCalculate").addEventListener('click', function () {
-	var resizeCanvas = document.createElement('canvas');
+	var thumbnailCanvas = document.getElementById('thumbnailCanvas');
+	var thumbnailContext = thumbnailCanvas.getContext('2d');
 	
-	resizeCanvas.width = widthInput.value;
-	resizeCanvas.height = heightInput.value;
-	context = resizeCanvas.getContext('2d');
+	var resizeCanvas = document.createElement('canvas');
+	resizeCanvas.width = document.getElementById("widthInputValue").value;
+	resizeCanvas.height = document.getElementById("heightInputValue").value;
+	resizeContext = resizeCanvas.getContext('2d');
 	
 	setTimeout(() => { 
-		context.drawImage(previewImage, 0, 0, resizeCanvas.width, resizeCanvas.height);
+		resizeContext.drawImage(thumbnailCanvas, 0, 0, resizeCanvas.width, resizeCanvas.height);
+		resizeContext = resizeCanvas.getContext('2d');
 	}, 100);
 	
 	setTimeout(() => {  
-		imageData = context.getImageData(0, 0, resizeCanvas.width, resizeCanvas.height);
+		imageData = resizeContext.getImageData(0, 0, resizeCanvas.width, resizeCanvas.height);
 		generateValidColoringAndDraw();
 	}, 200);
     
 })
 
 
+
 document.getElementById("buttonDownloadPDF")
     .addEventListener("click", async () => {
         await generateInstructions();
     });
+	
+document.getElementById("widthInputValue").addEventListener('change', function () {
+	var numReqParts = document.getElementById("heightInputValue").value * this.value;
+	document.getElementById("requiredPartsString").innerHTML = `Required parts: ${numReqParts}`;
+	
+	if (validImagePresent && (numReqParts <= updatePartList())) {
+		document.getElementById("buttonCalculate").disabled = false;
+	} else {
+		document.getElementById("buttonCalculate").disabled = true;
+	}
+})
+
+document.getElementById("heightInputValue").addEventListener('change', function () {
+	var numReqParts = document.getElementById("widthInputValue").value * this.value;
+	document.getElementById("requiredPartsString").innerHTML = `Required parts: ${numReqParts}`;
+	
+	if (validImagePresent && (numReqParts <= updatePartList())) {
+		document.getElementById("buttonCalculate").disabled = false;
+	} else {
+		document.getElementById("buttonCalculate").disabled = true;
+	}
+})
 
 
-// Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-//var cell1 = row.insertCell(0);
 
-var myDropdown = document.getElementsByClassName("dropdown-item")
-for (var i = 0; i < myDropdown.length; i++) {
-    myDropdown[i].addEventListener('click', function () {
-        getPartList(this.id);
-        //setTableItemsFromPartList(partList)
-    })
+var myPartButtonGroup = document.getElementsByClassName("btn btn-secondary py-0")
+for (var i = 0; i < myPartButtonGroup.length; i++) {
+	if (myPartButtonGroup[i].id.includes('Minus') || myPartButtonGroup[i].id.includes('Plus')) {
+		myPartButtonGroup[i].addEventListener('click', function () {
+			if (this.id.includes('Minus')) {
+				var myInputForm = document.getElementById(`input${this.id.substring(11,this.id.length)}`);
+			} else {
+				var myInputForm = document.getElementById(`input${this.id.substring(10,this.id.length)}`);
+			}
+			myInputForm.value = Math.max(0, Number(myInputForm.value) + 1 - 2*this.id.includes('Minus')).toString();
+			
+			var partCount = updatePartList();
+			document.getElementById("availablePartsString").innerHTML = `Available parts: ${partCount}`;
+			
+			if (validImagePresent && ((document.getElementById("widthInputValue").value * document.getElementById("heightInputValue").value) <= partCount)) {
+				document.getElementById("buttonCalculate").disabled = false;
+			} else {
+				document.getElementById("buttonCalculate").disabled = true;
+			}
+		})
+	}
 }
 
 
-var myDropdown = document.getElementById("partListGroup").getElementsByClassName('list-group-item')
-for (var i = 0; i < myDropdown.length; i++) {
-	myDropdown[i].addEventListener('click', function () {
-		for (var i = 0; i < myDropdown.length; i++) {
-			myDropdown[i].classList.remove('active');
-		}
+document.getElementById("cropCenterSquareButton")
+    .addEventListener("click", function () {
+        document.getElementById("scaleToSquareButton").classList.remove('active');
 		this.classList.add('active');
-        getPartList(this.id);
-        //setTableItemsFromPartList(partList)
-    })
-}
-
-
-var myButtonGroup = document.getElementById("partLimitsBtnGroup").getElementsByClassName('btn')
-for (var i = 0; i < myButtonGroup.length; i++) {
-	myButtonGroup[i].addEventListener('click', function () {
-		for (var i = 0; i < myButtonGroup.length; i++) {
-			myButtonGroup[i].classList.remove('active');
-		}
+		var thumbnailCanvas = document.getElementById('thumbnailCanvas');
+		var thumbnailContext = thumbnailCanvas.getContext('2d');
+		thumbnailContext.drawImage(previewImage, 
+					Math.max(0,(previewImage.width-previewImage.height)/2),
+					Math.max(0,(previewImage.height-previewImage.width)/2),
+					Math.min(previewImage.width, previewImage.height),
+					Math.min(previewImage.width, previewImage.height),
+					0, 0,
+					thumbnailCanvas.width, thumbnailCanvas.height);
+    });
+	
+document.getElementById("scaleToSquareButton")
+    .addEventListener("click", function () {
+        document.getElementById("cropCenterSquareButton").classList.remove('active');
 		this.classList.add('active');
-    })
-}
+		var thumbnailCanvas = document.getElementById('thumbnailCanvas');
+		var thumbnailContext = thumbnailCanvas.getContext('2d');
+		thumbnailContext.drawImage(previewImage, 
+					0, 0,
+					previewImage.width, previewImage.height,
+					0, 0,
+					thumbnailCanvas.width, thumbnailCanvas.height);
+    });
 
 
 
 
 var drawMosaic = function (im) {
 	
-    //console.log(im)
-	width = im.length;
+    width = im.length;
 	height = im[0].length;
 	
     var canvas = document.getElementById("previewMosaicCanvas")
@@ -144,7 +209,6 @@ var drawMosaic = function (im) {
 
     for (var x = 0; x < width; x++) {
         for (var y = 0; y < height; y++) {
-            //var index = (y*width + x) * 4;
             var red = im[x][y][0];
             var green = im[x][y][1];
             var blue = im[x][y][2];
@@ -176,10 +240,10 @@ function rgbToHex(rgb) {
   }
 
 
-var getPartList = function (id) {
+var getPartListOfOneSet = function (id) {
     switch (id) {
-        case "dropdownButtonBeatles":
-            partList = [
+        case "Beatles":
+            var partList = [
                 [5, 19, 29, 698], // r, g, b, count
                 [159, 195, 233, 57],
                 [248, 187, 61, 65],
@@ -196,9 +260,9 @@ var getPartList = function (id) {
                 [228, 205, 158, 283],
                 [255, 255, 255, 149]
 				];
-            return;
-        case "dropdownButtonMonroe":
-            partList = [
+            return partList;
+        case "Monroe":
+            var partList = [
                 [5, 19, 29, 629],
 				[228, 173, 200, 587],
 				[108, 110, 104, 131],
@@ -207,9 +271,9 @@ var getPartList = function (id) {
 				[54, 174, 191, 587],
 				[242, 205, 55, 587]
 				];
-            return;
-        case "dropdownButtonIronman":
-            partList = [
+            return partList;
+        case "IronMan":
+            var partList = [
 				[5, 19, 29, 476],
 				[10, 52, 99, 529],
 				[108, 110, 104, 91],
@@ -226,9 +290,9 @@ var getPartList = function (id) {
 				[228, 205, 158, 155],
 				[255, 255, 255, 61]
 				];
-            return;
-		case "dropdownButtonSith":
-            partList = [
+            return partList;
+		case "Sith":
+            var partList = [
 				[5, 19, 29, 877],
 				[255, 240, 58, 92],
 				[10, 52, 99, 447],
@@ -242,9 +306,9 @@ var getPartList = function (id) {
 				[96, 116, 161, 139],
 				[255, 255, 255, 187]
 				];
-			return;
-		case "dropdownButtonHogwarts":
-            partList = [
+			return partList;
+		case "Hogwarts":
+            var partList = [
 				[5, 19, 29, 593],
 				[0, 85, 191, 431],
 				[75, 159, 74, 4],
@@ -258,18 +322,18 @@ var getPartList = function (id) {
 				[201, 26, 9, 15],
 				[255, 255, 255, 369]
 				];
-			return;
-		case "dropdownButtonPortrait":
-			partList = [
+			return partList;
+		case "Portrait":
+			var partList = [
 				[5, 19, 29, 900],
 				[108, 110, 104, 900],
 				[160, 165, 169, 900],
 				[255, 255, 255, 900],
 				[242, 205, 55, 900]
 				];
-			return;
-		case "dropdownButtonMickey":
-			partList = [
+			return partList;
+		case "Mickey":
+			var partList = [
 				[5, 19, 29, 662],
 				[10, 52, 99, 409],
 				[108, 110, 104, 79],
@@ -280,18 +344,50 @@ var getPartList = function (id) {
 				[228, 205, 158, 32],
 				[255, 255, 255, 835]
 				];
-			return;
+			return partList;
         default:
             console.log("unknown");
             break;
       }
 }
-getPartList('dropdownButtonBeatles');
 
 
-var setTableItemsFromPartList = function (partList) {
-    //var partListTable = document.getElementById("partTable")
-    //console.log(partListTable)
+var updatePartList = function () {
+	var totalCount = 0;
+	fullPartList = [];
+	for (var i = 0; i < myPartButtonGroup.length; i+=2) {
+		var setName = myPartButtonGroup[i].id.substring(11,myPartButtonGroup[i].id.length);
+		var multiplier = Number(document.getElementById(`input${setName}`).value);
+		
+		var partList = getPartListOfOneSet(setName);
+		// Adjust number of parts in partList
+		for (var col = 0; col < partList.length; col++) {
+			partList[col][3] = partList[col][3] * multiplier;
+			totalCount += partList[col][3];
+		}
+		
+		if (fullPartList.length == 0) {
+			if (multiplier > 0) {
+				fullPartList = partList;
+			}
+		} else {
+			for (var col1 = 0; col1 < partList.length; col1++) {
+				if (partList[col1][3] > 0) {
+					var notAlreadyPresent = true;
+					for (var col2 = 0; col2 < fullPartList.length; col2++) {
+						if ((fullPartList[col2][0] == partList[col1][0]) && (fullPartList[col2][1] == partList[col1][1]) && (fullPartList[col2][2] == partList[col1][2])) {
+							notAlreadyPresent = false;
+							fullPartList[col2][3] = fullPartList[col2][3] + partList[col1][3];
+						}
+					}
+					if (notAlreadyPresent) {
+						fullPartList.push(partList[col1]);
+					}
+				}
+			}
+		}
+	}
+	return totalCount;
 }
 
 
@@ -317,37 +413,18 @@ async function generateValidColoring () {
 	document.getElementById("buttonCalculate").hidden = true;
 	await sleep(5);
 	
-	var colorList = JSON.parse(JSON.stringify(partList)); // bad way to do a deep copy, but it works
-	var colorList2 = JSON.parse(JSON.stringify(partList)); // bad way to do a deep copy, but it works
+	var colorList = JSON.parse(JSON.stringify(fullPartList)); // bad way to do a deep copy, but it works
+	var colorList2 = JSON.parse(JSON.stringify(fullPartList)); // bad way to do a deep copy, but it works
 	
-	var usePartLimitsButton = document.getElementById("unlimitedPartsButton");
-	var limitedParts = !(usePartLimitsButton.classList.value.includes("active"));
-	console.log(limitedParts);
-	if (limitedParts) {
-		var partLimits1Button = document.getElementById("partLimits1Button");
-		if (partLimits1Button.classList.value.includes("active")) { var partMultiplier = 1; }
-		var partLimits2Button = document.getElementById("partLimits2Button");
-		if (partLimits2Button.classList.value.includes("active")) { var partMultiplier = 2; }
-		var partLimits3Button = document.getElementById("partLimits3Button");
-		if (partLimits3Button.classList.value.includes("active")) { var partMultiplier = 3; }
-		var partLimits4Button = document.getElementById("partLimits4Button");
-		if (partLimits4Button.classList.value.includes("active")) { var partMultiplier = 4; }
+	//var usePartLimitsButton = document.getElementById("unlimitedPartsButton");
+	var limitedParts = true;// !(usePartLimitsButton.classList.value.includes("active"));
 
-		// Adjust number of parts in partList
-		for (var col = 0; col < colorList.length; col++) {
-			colorList[col][3] = colorList[col][3] * partMultiplier;
-		}
-		console.log(colorList);
-	}
-	
 	// Calculate distance of all pixels to all colors
 	// Add a bit of randomness into color for jittering
 	var pxCount = 0;
 	var distMat = createArray(imageData.width, imageData.height, colorList.length);
 	var outIm = createArray(imageData.width, imageData.height, 3);
 	var outCol = createArray(imageData.width, imageData.height);
-	
-	console.log(imageData.data)
 	
 	console.log('starting coloring');
 	var allBlack = true;
@@ -358,7 +435,7 @@ async function generateValidColoring () {
             var green = imageData.data[index + 1] + Math.random()*3-1.5;
             var blue = imageData.data[index + 2] + Math.random()*3-1.5;
 			
-			if (red != 0 || green != 0 || blue != 0) {
+			if (imageData.data[index] != 0 || imageData.data[index + 1] != 0 || imageData.data[index + 2] != 0) {
 				allBlack = false
 			}
 			
@@ -461,9 +538,7 @@ async function generateValidColoring () {
 		}
 	}
 	console.log('first coloring done');
-	drawMosaic(outIm);
-	//document.getElementById("calculate-progress-bar").style.width = "20%";
-	//await sleep(5);
+	//drawMosaic(outIm);
 	
 	if (limitedParts) {
 		console.log('optimizing');
