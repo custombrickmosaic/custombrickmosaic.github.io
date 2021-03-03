@@ -1,13 +1,21 @@
+
 const previewImage = document.getElementById("previewImg");
-
-document.getElementById("buttonCalculate").disabled = true;
-document.getElementById("buttonDownloadPDF").disabled = true;
-
 var imageData = [];
 var partList = [];
 var finalMosaicIm = [];
 var validImagePresent = false;
 
+function init() {
+	document.getElementById("buttonCalculate").disabled = true;
+	document.getElementById("buttonDownloadPDF").disabled = true;
+
+	var numReqParts = document.getElementById("heightInputValue").value * document.getElementById("widthInputValue").value;
+	document.getElementById("requiredPartsString").innerHTML = `Required parts: ${numReqParts}`;
+
+	var thumbnailCanvas = document.getElementById('thumbnailCanvas');
+	thumbnailCanvas.height = thumbnailCanvas.width * document.getElementById("heightInputValue").value / document.getElementById("widthInputValue").value;
+};
+init();
 
 document.getElementById("imageFile").addEventListener("change", function() {
 //function preview_image(event) {
@@ -33,10 +41,10 @@ document.getElementById("imageFile").addEventListener("change", function() {
 					
 					if (document.getElementById('cropCenterSquareButton').classList.value.includes("active")) {
 						thumbnailContext.drawImage(previewImage, 
-										Math.max(0,(previewImage.width-previewImage.height)/2),
-										Math.max(0,(previewImage.height-previewImage.width)/2),
+										Math.max(0,(previewImage.width-previewImage.height/thumbnailCanvas.height*thumbnailCanvas.width)/2),
+										Math.max(0,(previewImage.height-previewImage.width/thumbnailCanvas.width*thumbnailCanvas.height)/2),
 										Math.min(previewImage.width, previewImage.height),
-										Math.min(previewImage.width, previewImage.height),
+										Math.min(previewImage.width, previewImage.height) * thumbnailCanvas.height/thumbnailCanvas.width,
 										0, 0,
 										thumbnailCanvas.width, thumbnailCanvas.height);
 					} else {
@@ -47,7 +55,6 @@ document.getElementById("imageFile").addEventListener("change", function() {
 										thumbnailCanvas.width, thumbnailCanvas.height);
 					}
 					document.getElementById("thumbnailCanvas").hidden = false;
-
 					document.getElementById("buttonDownloadPDF").disabled = true;
 					
 					validImagePresent = true;
@@ -126,6 +133,26 @@ document.getElementById("widthInputValue").addEventListener('change', function (
 	} else {
 		document.getElementById("buttonCalculate").disabled = true;
 	}
+	
+	var thumbnailCanvas = document.getElementById('thumbnailCanvas');
+	var thumbnailContext = thumbnailCanvas.getContext('2d');
+	thumbnailCanvas.height = thumbnailCanvas.width * document.getElementById("heightInputValue").value / this.value;
+	
+	if (document.getElementById('cropCenterSquareButton').classList.value.includes("active")) {
+		thumbnailContext.drawImage(previewImage, 
+						Math.max(0,(previewImage.width-previewImage.height/thumbnailCanvas.height*thumbnailCanvas.width)/2),
+						Math.max(0,(previewImage.height-previewImage.width/thumbnailCanvas.width*thumbnailCanvas.height)/2),
+						Math.min(previewImage.width, previewImage.height),
+						Math.min(previewImage.width, previewImage.height) * thumbnailCanvas.height/thumbnailCanvas.width,
+						0, 0,
+						thumbnailCanvas.width, thumbnailCanvas.height);
+	} else {
+		thumbnailContext.drawImage(previewImage, 
+						0, 0,
+						previewImage.width, previewImage.height,
+						0, 0,
+						thumbnailCanvas.width, thumbnailCanvas.height);
+	}
 })
 
 document.getElementById("heightInputValue").addEventListener('change', function () {
@@ -136,6 +163,26 @@ document.getElementById("heightInputValue").addEventListener('change', function 
 		document.getElementById("buttonCalculate").disabled = false;
 	} else {
 		document.getElementById("buttonCalculate").disabled = true;
+	}
+	
+	var thumbnailCanvas = document.getElementById('thumbnailCanvas');
+	var thumbnailContext = thumbnailCanvas.getContext('2d');
+	thumbnailCanvas.height = thumbnailCanvas.width * this.value / document.getElementById("widthInputValue").value;
+	
+	if (document.getElementById('cropCenterSquareButton').classList.value.includes("active")) {
+		thumbnailContext.drawImage(previewImage, 
+						Math.max(0,(previewImage.width-previewImage.height/thumbnailCanvas.height*thumbnailCanvas.width)/2),
+						Math.max(0,(previewImage.height-previewImage.width/thumbnailCanvas.width*thumbnailCanvas.height)/2),
+						Math.min(previewImage.width, previewImage.height),
+						Math.min(previewImage.width, previewImage.height) * thumbnailCanvas.height/thumbnailCanvas.width,
+						0, 0,
+						thumbnailCanvas.width, thumbnailCanvas.height);
+	} else {
+		thumbnailContext.drawImage(previewImage, 
+						0, 0,
+						previewImage.width, previewImage.height,
+						0, 0,
+						thumbnailCanvas.width, thumbnailCanvas.height);
 	}
 })
 
@@ -164,6 +211,33 @@ for (var i = 0; i < myPartButtonGroup.length; i++) {
 	}
 }
 
+document.getElementById("buttonPlusWidth")
+    .addEventListener("click", function () {
+		var myInputForm = document.getElementById("widthInputValue");
+		myInputForm.value = Math.min(200, Number(myInputForm.value) + 1).toString();
+		myInputForm.dispatchEvent(new Event('change'));
+	});
+
+document.getElementById("buttonMinusWidth")
+    .addEventListener("click", function () {
+		var myInputForm = document.getElementById("widthInputValue");
+		myInputForm.value = Math.max(0, Number(myInputForm.value) - 1).toString();
+		myInputForm.dispatchEvent(new Event('change'));
+	});
+	
+document.getElementById("buttonPlusHeight")
+    .addEventListener("click", function () {
+		var myInputForm = document.getElementById("heightInputValue");
+		myInputForm.value = Math.min(200, Number(myInputForm.value) + 1).toString();
+		myInputForm.dispatchEvent(new Event('change'));
+	});
+
+document.getElementById("buttonMinusHeight")
+    .addEventListener("click", function () {
+		var myInputForm = document.getElementById("heightInputValue");
+		myInputForm.value = Math.max(0, Number(myInputForm.value) - 1).toString();
+		myInputForm.dispatchEvent(new Event('change'));
+	});
 
 document.getElementById("cropCenterSquareButton")
     .addEventListener("click", function () {
@@ -172,12 +246,12 @@ document.getElementById("cropCenterSquareButton")
 		var thumbnailCanvas = document.getElementById('thumbnailCanvas');
 		var thumbnailContext = thumbnailCanvas.getContext('2d');
 		thumbnailContext.drawImage(previewImage, 
-					Math.max(0,(previewImage.width-previewImage.height)/2),
-					Math.max(0,(previewImage.height-previewImage.width)/2),
-					Math.min(previewImage.width, previewImage.height),
-					Math.min(previewImage.width, previewImage.height),
-					0, 0,
-					thumbnailCanvas.width, thumbnailCanvas.height);
+						Math.max(0,(previewImage.width-previewImage.height/thumbnailCanvas.height*thumbnailCanvas.width)/2),
+						Math.max(0,(previewImage.height-previewImage.width/thumbnailCanvas.width*thumbnailCanvas.height)/2),
+						Math.min(previewImage.width, previewImage.height),
+						Math.min(previewImage.width, previewImage.height) * thumbnailCanvas.height/thumbnailCanvas.width,
+						0, 0,
+						thumbnailCanvas.width, thumbnailCanvas.height);
     });
 	
 document.getElementById("scaleToSquareButton")
@@ -555,7 +629,7 @@ async function generateValidColoring () {
 			keepRunning = false;
 			var swapCount = 0;
 			var swapPoolCount = 0;
-			console.log(`  iteration ${count}`);
+			console.log(`iteration ${count}`);
 			for (var x = 0; x < imageData.width; x++) {
 				for (var y = 0; y < imageData.height; y++) {
 					
@@ -631,7 +705,7 @@ async function generateValidColoring () {
 					}
 				}
 			}
-			console.log(`swapped ${swapCount} parts + ${swapPoolCount} with pool`);
+			console.log(`   swapped ${swapCount} parts + ${swapPoolCount} with pool`);
 		}
 	}
 	

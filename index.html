@@ -7,6 +7,16 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"></script>
+	
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-26DV3X0SY0"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-26DV3X0SY0');
+	</script>
 
 	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico?">
 	
@@ -26,12 +36,20 @@
     </style>
 </head>
 <body>
-    <div class="container-lg mt-3">
-        <div class="row py-3">
-			<h1>Custom Brick Mosaic Generator</h1>
-        </div>
+	<header>
+		<nav class="navbar navbar-expand-lg navbar-light shadow mt-2 py-0">
+			<div class="container-xl">
+				<div class="row pt-1 mb-0">
+					<h1 class="mb-0 mt-0">Custom Brick Mosaic Generator</h1>
+					<p class="mb-2 mt-0">Create stunning brick mosaics from your own photos, and realize them with existing brick sets.</p>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+    <div class="container-xl mt-3 pt-3">
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-5">
                 <div class="row">
                     <label for="imageFile" class="form-label"><strong>1. Choose a source image (It will not be uploaded)</strong></label>
 				</div>
@@ -42,106 +60,116 @@
 						Sorry, your browser doesn't support the &lt;canvas&gt; element.
 					</canvas>
 					<div class="btn-group px-3 pt-1 " role="group" aria-label="cropOrScale" id="cropOrScaleImageBtnGroup" hidden>
-					    <button type="button" class="btn btn-secondary pt-0 pb-0 active" id="cropCenterSquareButton">Crop center square</button>
-						<button type="button" class="btn btn-secondary pt-0 pb-0" id="scaleToSquareButton">Resize to square</button>
+					    <button type="button" class="btn btn-secondary pt-0 pb-0 active" id="cropCenterSquareButton">Crop to fit</button>
+						<button type="button" class="btn btn-secondary pt-0 pb-0" id="scaleToSquareButton">Resize to fit</button>
 					</div>
                 </div>
                 <div class="row pb-4">
 					<label class="form-label"><strong>2. Select the size of the mosaic</strong></label>
-					<div class="col mb-1 ps-3 pe-1">
+					<!--div class="col mb-1 ps-3 pe-1">
 						<div class="input-group input-group-sm">
 							<span class="input-group-text">Width</span>
 							<input type="number" class="form-control" id="widthInputValue" aria-label="MosaicWidth" placeholder="48" value="48">
 						</div>
+					</div-->
+					<div class="col mb-1 ps-3 pe-2">
+						<div class="input-group input-group-sm mb-1">
+							<span class="input-group-text pt-1 px-3">Width</span>
+							<button class="btn btn-secondary pt-0 pb-0" type="button" id="buttonMinusWidth">-</button>
+							<input type="text" class="form-control text-center py-0" id="widthInputValue" aria-label="MosaicWidth" placeholder="48" value="48">
+							<button class="btn btn-secondary pt-0 pb-0" type="button" id="buttonPlusWidth">+</button>
+						</div>
 					</div>
-					<div class="col mb-1 pe-3 ps-1">
-						<div class="input-group input-group-sm">
-							<span class="input-group-text">Height</span>
-							<input type="number" class="form-control" id="heightInputValue" aria-label="MosaicHeight" placeholder="48" value="48">
+					<div class="col mb-1 pe-3 ps-2">
+						<div class="input-group input-group-sm mb-1">
+							<span class="input-group-text pt-1 px-3">Height</span>
+							<button class="btn btn-secondary pt-0 pb-0" type="button" id="buttonMinusHeight">-</button>
+							<input type="text" class="form-control text-center py-0" id="heightInputValue" aria-label="MosaicHeight" placeholder="48" value="48">
+							<button class="btn btn-secondary pt-0 pb-0" type="button" id="buttonPlusHeight">+</button>
 						</div>
 					</div>
 					<p class="fw-light mb-0 px-4" id="requiredPartsString">Required parts: 2304</p>
                 </div>
 				<div class="row pb-4">
-					<label for="partListGroup" class="form-label"><strong>3. Which brick sets do you have?</strong></label>
-					<div class="form-group row mx-0 px-1">
-						<div class="col-6">
+					<label for="partListGroup" class="form-label"><strong>3. Which brick set(s) do you have?</strong></label>
+					<div class="form-group row mx-1 px-2">
+						<div class="col-7">
 							<label>The Beatles</label>
 						</div>
-						<div class="col-6">
-							<div class="input-group mb-1">
+						<div class="col-5">
+							<div class="input-group input-group-sm mb-1">
 								<button class="btn btn-secondary py-0" type="button" id="buttonMinusBeatles">-</button>
 								<input type="text" class="form-control text-center py-0" id="inputBeatles" aria-label="numberOfBeatlesSet" placeholder="0" value="0">
 								<button class="btn btn-secondary py-0" type="button" id="buttonPlusBeatles">+</button>
 							</div>
 						</div>
 					</div>
-					<div class="form-group row mx-0 px-1">
-						<div class="col-6">
+					<div class="form-group row mx-1 px-2">
+						<div class="col-7">
 							<label>Marilyn Monroe</label>
 						</div>
-						<div class="col-6">
-							<div class="input-group mb-1">
+						<div class="col-5">
+							<div class="input-group input-group-sm mb-1">
 								<button class="btn btn-secondary py-0" type="button" id="buttonMinusMonroe">-</button>
 								<input type="text" class="form-control text-center py-0" id="inputMonroe" aria-label="numberOfMonroeSet" placeholder="0" value="0">
 								<button class="btn btn-secondary py-0" type="button" id="buttonPlusMonroe">+</button>
 							</div>
 						</div>
 					</div>
-					<div class="form-group row mx-0 px-1">
-						<div class="col-6">
+					<div class="form-group row mx-1 px-2">
+						<div class="col-7">
 							<label>Iron Man</label>
 						</div>
-						<div class="col-6">
-							<div class="input-group mb-1">
+						<div class="col-5">
+							<div class="input-group input-group-sm mb-1">
 								<button class="btn btn-secondary py-0" type="button" id="buttonMinusIronMan">-</button>
 								<input type="text" class="form-control text-center py-0" id="inputIronMan" aria-label="numberOfIronManSet" placeholder="0" value="0">
 								<button class="btn btn-secondary py-0" type="button" id="buttonPlusIronMan">+</button>
 							</div>
 						</div>
 					</div>
-					<div class="form-group row mx-0 px-1">
-						<div class="col-6">
+					<div class="form-group row mx-1 px-2">
+						<div class="col-7">
 							<label>The Sith</label>
 						</div>
-						<div class="col-6">
-							<div class="input-group mb-1">
+						<div class="col-5">
+							<div class="input-group input-group-sm mb-1">
 								<button class="btn btn-secondary py-0" type="button" id="buttonMinusSith">-</button>
 								<input type="text" class="form-control text-center py-0" id="inputSith" aria-label="numberOfSithSet" placeholder="0" value="0">
 								<button class="btn btn-secondary py-0" type="button" id="buttonPlusSith">+</button>
 							</div>
 						</div>
 					</div>
-					<div class="form-group row mx-0 px-1">
-						<div class="col-6">
+					<div class="form-group row mx-1 px-2">
+						<div class="col-7">
 							<label>Hogwarts</label>
 						</div>
-						<div class="col-6">
-							<div class="input-group mb-1">
+						<div class="col-5">
+							<div class="input-group input-group-sm mb-1">
 								<button class="btn btn-secondary py-0" type="button" id="buttonMinusHogwarts">-</button>
 								<input type="text" class="form-control text-center py-0" id="inputHogwarts" aria-label="numberOfHogwartsSet" placeholder="0" value="0">
 								<button class="btn btn-secondary py-0" type="button" id="buttonPlusHogwarts">+</button>
 							</div>
 						</div>
 					</div>
-					<div class="form-group row mx-0 px-1">
-						<div class="col-6">
+					<div class="form-group row mx-1 px-2">
+						<div class="col-7">
 							<label>Mickey Mouse</label>
 						</div>
-						<div class="col-6">
-							<div class="input-group mb-1">
+						<div class="col-5">
+							<div class="input-group input-group-sm mb-1">
 								<button class="btn btn-secondary py-0" type="button" id="buttonMinusMickey">-</button>
 								<input type="text" class="form-control text-center py-0" id="inputMickey"aria-label="numberOfMickeySet" placeholder="0" value="0">
 								<button class="btn btn-secondary py-0" type="button" id="buttonPlusMickey">+</button>
 							</div>
 						</div>
 					</div>
-					<div class="form-group row mx-0 px-1">
-						<div class="col-6">
+					<div class="form-group row mx-1 px-2">
+						<div class="col-7">
 							<label>Personalized Portrait</label>
 						</div>
-						<div class="col-6">
-							<div class="input-group mb-1">
+						<div class="col-5">
+							<div class="input-group input-group-sm mb-1">
 								<button class="btn btn-secondary py-0" type="button" id="buttonMinusPortrait">-</button>
 								<input type="text" class="form-control text-center py-0" id="inputPortrait"aria-label="numberOfPortraitSet" placeholder="0" value="0">
 								<button class="btn btn-secondary py-0" type="button" id="buttonPlusPortrait">+</button>
@@ -169,7 +197,7 @@
 					<button type="button mx-1" class="btn btn-primary" id="buttonDownloadPDF" disabled>Generate and download instructions (pdf)</button>
 				</div>
             </div>
-            <div class="col-md-8 mb-5 pb-5">
+            <div class="col-md-7 mb-5 pb-5">
                 <label for="previewImg" class="form-label"><strong>Mosaic preview</strong></label>
                 <canvas id="previewMosaicCanvas" width="800" height="800" style="border:1px solid #000000;">
                     Sorry, your browser doesn't support the &lt;canvas&gt; element.
