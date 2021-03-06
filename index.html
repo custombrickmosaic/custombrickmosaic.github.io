@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
 	<!-- Global site tag (gtag.js) - Google Analytics -->
-	<script async src="https://www.googletagmanager.com/gtag/js?id=G-26DV3X0SY0"></script>
+	<!--script async src="https://www.googletagmanager.com/gtag/js?id=G-26DV3X0SY0"></script>
 	<script>
 	  window.dataLayer = window.dataLayer || [];
 	  function gtag(){dataLayer.push(arguments);}
 	  gtag('js', new Date());
 
 	  gtag('config', 'G-26DV3X0SY0');
-	</script>
+	</script-->
 	
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -41,7 +41,7 @@
 			<div class="container-xl">
 				<div class="row pt-1 mb-0">
 					<h1 class="mb-0 mt-0">Custom Brick Mosaic Generator</h1>
-					<p class="mb-2 mt-0">Create stunning brick mosaics from your own photos, and realize them with existing brick sets.</p>
+					<p class="mb-2 mt-0">Create brick mosaics from your own images, and realize them with existing brick sets.</p>
 				</div>
 			</div>
 		</nav>
@@ -88,7 +88,7 @@
 							<button class="btn btn-secondary pt-0 pb-0" type="button" id="buttonPlusHeight">+</button>
 						</div>
 					</div>
-					<p class="fw-light mb-0 px-4" id="requiredPartsString">Required parts: 2304</p>
+					<p class="fw-light mb-0 px-4 text-end" id="requiredPartsString">Required parts: 2304</p>
                 </div>
 				<div class="row pb-4">
 					<label for="partListGroup" class="form-label"><strong>3. Which brick set(s) do you have?</strong></label>
@@ -176,7 +176,7 @@
 							</div>
 						</div>
 					</div>
-					<p class="fw-light mb-0 px-4" id="availablePartsString">Available parts: 0</p>
+					<p class="fw-light mb-0 px-4 text-end" id="availablePartsString">Available parts: <span style="color:red; font-weight:bold;">0</span></p>
 				</div>
                 <div class="row">
 					<label for="buttonCalculate" class="form-label"><strong>4. Run calculation</strong></label>
