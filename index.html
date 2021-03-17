@@ -41,7 +41,7 @@
 			<div class="container-xl">
 				<div class="row pt-1 mb-0">
 					<h1 class="mb-0 mt-0">Custom Brick Mosaic Generator</h1>
-					<p class="mb-2 mt-0">Create brick mosaics from your own images, and realize them with existing brick sets.</p>
+					<p class="mb-2 mt-0">Create brick art mosaics from your own images, and realize them with existing lego art sets.</p>
 				</div>
 			</div>
 		</nav>
@@ -53,18 +53,53 @@
                 <div class="row">
                     <label for="imageFile" class="form-label"><strong>1. Choose a source image (It will not be uploaded)</strong></label>
 				</div>
-				<div class="row pb-4 px-3">
+				<div class="row pb-0 px-3">
 					<input class="form-control mb-2" type="file" accept="image/*" id="imageFile" name="imageFile"><!--onchange="preview_image(event)"-->
+				</div>
+				<div class="row pb-0 px-3" id="imageAdjustmentsRow" hidden>
 					<img src="" class="img-thumbnail" alt="No image chosen" id="previewImg" hidden>
-					<canvas id="thumbnailCanvas" width="480" height="480" style="border:1px solid #000000;" hidden>
+					<div class="col-2"></div>
+					<div class="col-8">
+					<canvas class="px-0" id="thumbnailCanvas" style="border:1px solid #000000;">
 						Sorry, your browser doesn't support the &lt;canvas&gt; element.
 					</canvas>
-					<div class="btn-group px-3 pt-1 " role="group" aria-label="cropOrScale" id="cropOrScaleImageBtnGroup" hidden>
-					    <button type="button" class="btn btn-secondary pt-0 pb-0 active" id="cropCenterSquareButton">Crop to fit</button>
+					</div>
+					<div class="col-2"></div>
+					<div class="btn-group px-3 py-1 " role="group" aria-label="cropOrScale" id="cropOrScaleImageBtnGroup">
+					    <button type="button" class="btn btn-secondary pt-0 pb-0 active" id="cropCenterSquareButton">Crop center</button>
 						<button type="button" class="btn btn-secondary pt-0 pb-0" id="scaleToSquareButton">Resize to fit</button>
 					</div>
+
+					<div class="col-3">
+						<label for="hueRange" class="form-label" id="hueRangeLabel">Hue: 0</label>
+					</div>
+					<div class="col-9">
+						<input type="range" class="form-range" id="hueRange" min="-180" max="180" value="0">
+					</div>
+					
+					<div class="col-3">
+						<label for="saturationRange" class="form-label" id="saturationRangeLabel">Saturation: 0</label>
+					</div>
+					<div class="col-9">
+						<input type="range" class="form-range" id="saturationRange" min="-100" max="100" value="0">
+					</div>
+					
+					<div class="col-3">
+						<label for="valueRange" class="form-label" id="valueRangeLabel">Value: 0</label>
+					</div>
+					<div class="col-9">
+						<input type="range" class="form-range" id="valueRange" min="-100" max="100" value="0">
+					</div>
+					
+					<div class="col-3">
+						<label for="contrastRange" class="form-label" id="contrastRangeLabel">Contrast: 0</label>
+					</div>
+					<div class="col-9">
+						<input type="range" class="form-range" id="contrastRange" min="-100" max="100" contrast="0">
+					</div>
+					
                 </div>
-                <div class="row pb-4">
+                <div class="row py-4">
 					<label class="form-label"><strong>2. Select the size of the mosaic</strong></label>
 					<!--div class="col mb-1 ps-3 pe-1">
 						<div class="input-group input-group-sm">
@@ -93,10 +128,10 @@
 				<div class="row pb-4">
 					<label for="partListGroup" class="form-label"><strong>3. Which brick set(s) do you have?</strong></label>
 					<div class="form-group row mx-1 px-2">
-						<div class="col-7">
+						<div class="col-8">
 							<label>The Beatles</label>
 						</div>
-						<div class="col-5">
+						<div class="col-4">
 							<div class="input-group input-group-sm mb-1">
 								<button class="btn btn-secondary py-0" type="button" id="buttonMinusBeatles">-</button>
 								<input type="text" class="form-control text-center py-0" id="inputBeatles" aria-label="numberOfBeatlesSet" placeholder="0" value="0">
@@ -105,10 +140,10 @@
 						</div>
 					</div>
 					<div class="form-group row mx-1 px-2">
-						<div class="col-7">
+						<div class="col-8">
 							<label>Marilyn Monroe</label>
 						</div>
-						<div class="col-5">
+						<div class="col-4">
 							<div class="input-group input-group-sm mb-1">
 								<button class="btn btn-secondary py-0" type="button" id="buttonMinusMonroe">-</button>
 								<input type="text" class="form-control text-center py-0" id="inputMonroe" aria-label="numberOfMonroeSet" placeholder="0" value="0">
@@ -117,10 +152,10 @@
 						</div>
 					</div>
 					<div class="form-group row mx-1 px-2">
-						<div class="col-7">
+						<div class="col-8">
 							<label>Iron Man</label>
 						</div>
-						<div class="col-5">
+						<div class="col-4">
 							<div class="input-group input-group-sm mb-1">
 								<button class="btn btn-secondary py-0" type="button" id="buttonMinusIronMan">-</button>
 								<input type="text" class="form-control text-center py-0" id="inputIronMan" aria-label="numberOfIronManSet" placeholder="0" value="0">
@@ -129,10 +164,10 @@
 						</div>
 					</div>
 					<div class="form-group row mx-1 px-2">
-						<div class="col-7">
+						<div class="col-8">
 							<label>The Sith</label>
 						</div>
-						<div class="col-5">
+						<div class="col-4">
 							<div class="input-group input-group-sm mb-1">
 								<button class="btn btn-secondary py-0" type="button" id="buttonMinusSith">-</button>
 								<input type="text" class="form-control text-center py-0" id="inputSith" aria-label="numberOfSithSet" placeholder="0" value="0">
@@ -141,10 +176,10 @@
 						</div>
 					</div>
 					<div class="form-group row mx-1 px-2">
-						<div class="col-7">
+						<div class="col-8">
 							<label>Hogwarts</label>
 						</div>
-						<div class="col-5">
+						<div class="col-4">
 							<div class="input-group input-group-sm mb-1">
 								<button class="btn btn-secondary py-0" type="button" id="buttonMinusHogwarts">-</button>
 								<input type="text" class="form-control text-center py-0" id="inputHogwarts" aria-label="numberOfHogwartsSet" placeholder="0" value="0">
@@ -153,10 +188,10 @@
 						</div>
 					</div>
 					<div class="form-group row mx-1 px-2">
-						<div class="col-7">
+						<div class="col-8">
 							<label>Mickey Mouse</label>
 						</div>
-						<div class="col-5">
+						<div class="col-4">
 							<div class="input-group input-group-sm mb-1">
 								<button class="btn btn-secondary py-0" type="button" id="buttonMinusMickey">-</button>
 								<input type="text" class="form-control text-center py-0" id="inputMickey"aria-label="numberOfMickeySet" placeholder="0" value="0">
@@ -165,10 +200,10 @@
 						</div>
 					</div>
 					<div class="form-group row mx-1 px-2">
-						<div class="col-7">
+						<div class="col-8">
 							<label>Personalized Portrait</label>
 						</div>
-						<div class="col-5">
+						<div class="col-4">
 							<div class="input-group input-group-sm mb-1">
 								<button class="btn btn-secondary py-0" type="button" id="buttonMinusPortrait">-</button>
 								<input type="text" class="form-control text-center py-0" id="inputPortrait"aria-label="numberOfPortraitSet" placeholder="0" value="0">
