@@ -36,22 +36,43 @@
     </style>
 </head>
 <body>
-	<header>
-		<nav class="navbar navbar-expand-lg navbar-light shadow mt-2 py-0">
-			<div class="container-xl">
-				<div class="row pt-1 mb-0">
-					<h1 class="mb-0 mt-0">Custom Brick Mosaic Generator</h1>
-					<p class="mb-2 mt-0">Create brick art mosaics from your own images, and realize them with existing lego art sets.</p>
-				</div>
+	<div class="container-fluid shadow mt-0 py-0 px-0">
+		<div class="container-xl">
+			<div class="row">
+				<h1 class="mb-0 mt-2">Custom Brick Mosaic Generator</h1>
 			</div>
-		</nav>
-	</header>
+		</div>
+		<div class="container-xl">
+			<nav class="navbar navbar-expand-lg navbar-light pb-1 pt-0">
+				<div class="container-fluid px-0">
+					<span class="navbar-text py-0" style="color:black">Create brick art mosaics from your own images, and realize them with existing lego art sets.</span>
+					<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+					  <span class="navbar-toggler-icon"></span>
+					</button>
+					<div class="collapse navbar-collapse" id="navbarNav">
+					  <ul class="navbar-nav ms-auto">
+						<li class="nav-item">
+						  <a class="nav-link py-0" href="#" data-bs-toggle="modal" data-bs-target="#howitworksModal">How to use</a>
+						</li>
+						<li class="nav-item">
+						  <a class="nav-link py-0" href="#" data-bs-toggle="modal" data-bs-target="#tippsModal">Tipps & Tricks</a>
+						</li>
+						<li class="nav-item">
+						  <a class="nav-link py-0" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">About</a>
+						</li>
+					  </ul>
+					</div>
+				</div>
+			</nav>
+		</div>
+	</div>
+	
 
     <div class="container-xl mt-3 pt-3">
         <div class="row">
             <div class="col-md-5">
                 <div class="row">
-                    <label for="imageFile" class="form-label"><strong>1. Choose a source image (It will not be uploaded)</strong></label>
+                    <label for="imageFile" class="form-label"><strong>1. Choose a source image (It is not uploaded)</strong></label>
 				</div>
 				<div class="row pb-0 px-3">
 					<input class="form-control mb-2" type="file" accept="image/*" id="imageFile" name="imageFile"><!--onchange="preview_image(event)"-->
@@ -69,32 +90,39 @@
 					    <button type="button" class="btn btn-secondary pt-0 pb-0 active" id="cropCenterSquareButton">Crop center</button>
 						<button type="button" class="btn btn-secondary pt-0 pb-0" id="scaleToSquareButton">Resize to fit</button>
 					</div>
+					
+					<div class="col-12 my-1">
+						<div class="form-check form-switch">
+							<input class="form-check-input" type="checkbox" id="ignoreBlackCheck">
+							<label class="form-check-label" for="flexSwitchCheckDefault">Ignore black regions in image</label>
+						</div>
+					</div>
 
-					<div class="col-3">
+					<div class="col-4 pe-0">
 						<label for="hueRange" class="form-label" id="hueRangeLabel">Hue: 0</label>
 					</div>
-					<div class="col-9">
+					<div class="col-8">
 						<input type="range" class="form-range" id="hueRange" min="-180" max="180" value="0">
 					</div>
 					
-					<div class="col-3">
+					<div class="col-4 pe-0">
 						<label for="saturationRange" class="form-label" id="saturationRangeLabel">Saturation: 0</label>
 					</div>
-					<div class="col-9">
+					<div class="col-8">
 						<input type="range" class="form-range" id="saturationRange" min="-100" max="100" value="0">
 					</div>
 					
-					<div class="col-3">
+					<div class="col-4 pe-0">
 						<label for="valueRange" class="form-label" id="valueRangeLabel">Value: 0</label>
 					</div>
-					<div class="col-9">
+					<div class="col-8">
 						<input type="range" class="form-range" id="valueRange" min="-100" max="100" value="0">
 					</div>
 					
-					<div class="col-3">
+					<div class="col-4 pe-0">
 						<label for="contrastRange" class="form-label" id="contrastRangeLabel">Contrast: 0</label>
 					</div>
-					<div class="col-9">
+					<div class="col-8">
 						<input type="range" class="form-range" id="contrastRange" min="-100" max="100" contrast="0">
 					</div>
 					
@@ -126,7 +154,7 @@
 					<p class="fw-light mb-0 px-4 text-end" id="requiredPartsString">Required parts: 2304</p>
                 </div>
 				<div class="row pb-4">
-					<label for="partListGroup" class="form-label"><strong>3. Which brick set(s) do you have?</strong></label>
+					<label for="partListGroup" class="form-label"><strong>3. Which lego art set(s) do you have?</strong></label>
 					<div class="form-group row mx-1 px-2">
 						<div class="col-8">
 							<label>The Beatles</label>
@@ -240,6 +268,99 @@
             </div>
         </div>
     </div>
+	
+
+	<!-- Modal -->
+	
+	<div class="modal fade" id="howitworksModal" tabindex="-1" aria-labelledby="howitworksModalLabel" aria-hidden="true">
+	  <div class="modal-dialog modal-lg">
+		<div class="modal-content">
+		  <div class="modal-header py-1 bg-light">
+			<h4 class="modal-title" id="howitworksModalLabel">How to use the Custom Brick Mosaic Generator</h4>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		  </div>
+		  <div class="modal-body">
+		    <h5>1. Select a source image</h5>
+			<p>Use the file selection tool to choose a file from your hard drive (or take a photo with your camera, if accessed from a phone). The image will be processed entirely in the browser. Nothing will be uploaded! After opening the image, you will see a preview below the file input. You can choose to squeeze the image into the final mosaic size, or crop the middle region and keep the aspect ratio. Furthermore, sliders below the preview image allow for (optional) modifications of brightness, contrast, and color. If your image has a black background (RGB=0,0,0), you can use the "Ignore black regions" option to focus the algorithm on the foreground object.</p>
+			<h5>2. Choose the size of the mosaic</h5>
+			<p>Use the inputs to select the size of the mosaic. A lego art mosaic has a size of 48 x 48 studs. From two sets you can build a 64 x 64 mosaic. You can choose any arbitrary mosaic size. The number of parts required to build the mosaic is displayed below.</p>
+			<h5>3. Select the lego art sets for the mosaic</h5>
+			<p>Available lego art sets are displayed in step 3. Use the input elements to adjust how many of each set you would like to use for the mosaic. The website internally stores how many parts (and of which color) are present in the sets. The number of available parts is displayed according to the user input.</p>
+			<h5>4. Calculate mosaic</h5>
+			<p>Use the "Calculate" button to start the calculation of the mosaic. The button is only active if the number of available parts in step 3 is larger than the number of required parts (step 2). The calculation takes a few seconds to finish. The progress of the computation is indicated.</p>
+			<h5>5. Download instructions</h5>
+			<p>The website can generate a pdf with building instructions for you. When the calculation of the mosaic finished you can access your pdf with the "Generate and download instructions (pdf)" button. In case the "Ignore black regions" option is chosen, ignored regions in the mosiac are labeled with "?" in the instruction. Fill these regions with remaining bricks.</p>
+			<h5>How it works - the algorithm</h5>
+			<p>The first step in creating lego art from custom images, is resizing to the final mosaic size. A bit of random noise is added to the raw color values to break color ties later on. Next, the color of each individual pixel is compared to all available colors within the selected brick sets. A color distance is calculated as the squared distance in RGB space. I have been experimenting with different color spaces, however, found that RGB works just fine. The actual calculation of the mosaic happens in two phases. First, the pixels are filled one-by-one with the best available color. If the best color is not available due to part limits, the next best color is chosen. In the second phase, individual parts are swapped with each other if this leads to a better joined color match. The swapping continues until no improvements can be made. This "brute force" calculation may take a while to finish, especially for larger mosaics.</p>
+		  </div>
+		  <div class="modal-footer py-1">
+			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		  </div>
+		</div>
+	  </div>
+	</div>
+	
+	<div class="modal fade" id="tippsModal" tabindex="-1" aria-labelledby="tippsModalLabel" aria-hidden="true">
+	  <div class="modal-dialog modal-lg">
+		<div class="modal-content">
+		  <div class="modal-header py-1 bg-light">
+			<h4 class="modal-title" id="tippsModalLabel">Tipps & Tricks</h4>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		  </div>
+		  <div class="modal-body">
+			<h5>The input image</h5>
+			<p>The most critical part for a good result is the input image itself. Good contrast and a similar color distribution as the parts in lego art set of choice helps to produce good results. It is worth trying a few different images and different zooms/crops of your subject. A homogenous background can be beneficial. Therefore, you can replace the background with any plain color in an external image processing program.</p>
+			<h5>Color adjustments</h5>
+			<p>Play with the color sliders and see how it affects the resulting mosaic. Use the hue slider to adjust the overall color of your image and bring it closer to the available colors in the lego art set. Brightness and contrast can be used to shift the image into a similar brightness scale as the available colors. Sometimes it helps to desaturate the image to get better results. A less saturated image will favor brightness differences instead of actual color differences. If background takes up a lot of space in your input image, consider replacing it with black (RGB 0,0,0) in an external program. You can then use "Ignore black regions" to exclude these background regions from processing. The algorithm will only fill the object and can better distribute the available colors.</p>
+			<h5>Choice of lego art sets</h5>
+			<p>The resulting mosaic of course heavily depends on the choice of the lego art set that you have available. If you do not already own a lego art set which restricts your choice, feel free to experiment with different sets or even combinations thereof.</p>
+			<h5>Part limits</h5>
+			<p>I found the results to look more pleasing when the number of parts of a given color is limited through the choice of the brick sets. When part numbers are not limited, the result often looks flat with little color contrast. A restriction in the number of available parts forces the algorithm to use suboptimal colors, thereby, increasing the color space of the resulting mosaic. As a result, the mosaics will get a more artistic look. You can increase this effect by further restricting the part numbers through entering decimal numbers into the input field for the set count (e.g. Beatles: 0.9).</p>
+			<h5>Multiple images</h5>
+			<p>If you want to build multiple mosaics (and you own the necessary number of lego art sets to build them) it is advisable to produce a source image with all images stitched together, and adjust the mosaic size and brick set numbers accordingly. As a result, the algorithm is free to distribute the available parts between the source images.</p>
+			<h5>Final real-world adjustments</h5>
+			<p>Don't take the generated mosaic and instructions as the final truth. When you are done assembling your mosaic, you can still switch individual bricks to create a more aesthetically pleasing result. That's part of the fun.</p>
+			<h5>Try other pages for lego art mosaics</h5>
+			<p class="my-0">There are two other great sites, that I know of, that allow you to generate lego art-based mosaics with part limitations. Feel free to try them out.</p>
+			<p class="my-0"><a href="https://lego-art-remix.debkbanerji.com/">Lego Art Remix</a></p>
+			<p><a href="https://jgassen.shinyapps.io/legoartmosaic/">LEGO Art Mosaic Generator</a></p>
+		  </div>
+		  <div class="modal-footer py-1">
+			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		  </div>
+		</div>
+	  </div>
+	</div>
+	
+	<div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+	  <div class="modal-dialog modal-lg">
+		<div class="modal-content">
+		  <div class="modal-header py-1 bg-light">
+			<h4 class="modal-title" id="aboutModalLabel">About custombrickmosaic.github.io</h4>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		  </div>
+		  <div class="modal-body">
+			<div class="row">
+				<h5>About me</h5>
+				<div class="col-12">
+					<img src="cf_about.png" class="rounded-circle" style='float:left;width:150px;height:150px; margin-right:10px;' alt="mosaic styled portrait">
+					<p>"I have been a lego fan during my entire childhood and got re-exposed through my kids recently. In my job, I am working on image analysis and computer vision problems. Bringing my love for lego and my enthusiasm for image processing and coding together to bring this website to life was really exciting. I hope that many of you enjoy using this site to build their own beautiful lego art mosaics."</p>
+					<p class="text-end">Christoph Fritzsch</p>
+				</div>
+			</div>
+			<h5>About the site</h5>
+			<p>Ever since the release of the first lego art mosaics, I wondered whether one could use them to create mosaics from own images. I knew this would require a custom algorithm that would account for limited amounts of certain colors. I figured that this would be a nice exercise in which I could use my experience in image analysis. Implementing a working prototype only took a few hours (it probably took me the longest to get the colors and part lists from <a href="https://rebrickable.com/">rebrickable.com</a>) and the results were much better than anticipated for this simple approach. So, I wanted to share it with the community. Having no experience with web design, hosting or cloud compute, I was quite happy that I was recommended to use JavaScript. This required re-implementation of the algorithm but allowed to run everything within the browser. This lifted the burden of organizing cloud compute and, at the same time, lowered data privacy concerns (in case images have to be uploaded to a server). In terms of hosting, I chose github pages, as this supports JavaScript, is easy to set up, and comes at no additional cost. During the first quarter of 2021, I created the basic functionality and layout of this site. Be aware that I am no professional web developer and this is my first JavaScript project. I am sure there are a few issues left to be solved ...</p>
+			<p>Source code is available on <a href="https://github.com/custombrickmosaic/custombrickmosaic.github.io">Github</a>. Feel free to open issues for bugs or enhancement requests.</p>
+			<h5>Data privacy</h5>
+			<p>The algorithm runs entirely within your web browser and all calculations are performed on your machine. Hence, no data is required to be uploaded to any server and data privacy is assured.</p>
+		  </div>
+		  <div class="modal-footer py-1">
+			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		  </div>
+		</div>
+	  </div>
+	</div>
+
 
 
     <!-- Bootstrap Bundle with Popper -->

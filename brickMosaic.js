@@ -6,6 +6,7 @@ var finalMosaicIm = [];
 var validImagePresent = false;
 var imageFilename = "";
 
+
 function init() {
 	document.getElementById("buttonCalculate").disabled = true;
 	document.getElementById("buttonDownloadPDF").disabled = true;
@@ -32,10 +33,12 @@ function init() {
 };
 init();
 
+
+
 document.getElementById("imageFile").addEventListener("change", function() {
 
 	validImagePresent = false;
-	if(this.files[0].type.match(/image.*/)) {
+	if(this.files.length > 0 && this.files[0].type.match(/image.*/)) {
 		var reader = new FileReader();
 		reader.onload = function()
 		{
@@ -44,7 +47,7 @@ document.getElementById("imageFile").addEventListener("change", function() {
 			previewImage.decode()
 				.then(() => {
 					
-					drawPreviewImage();
+					drawPreviewImage(true);
 					
 					document.getElementById("imageAdjustmentsRow").hidden = false;
 					document.getElementById("buttonDownloadPDF").disabled = true;
@@ -90,7 +93,8 @@ document.getElementById("imageFile").addEventListener("change", function() {
 
 
 
-document.getElementById("buttonCalculate").addEventListener('click', function () {
+document.getElementById("buttonCalculate").addEventListener("click", async () => {
+	await drawPreviewImage(false); // remove red stripes if "ignore black regions"
 	var thumbnailCanvas = document.getElementById('thumbnailCanvas');
 	
 	var resizeCanvas = document.createElement('canvas');
@@ -98,15 +102,13 @@ document.getElementById("buttonCalculate").addEventListener('click', function ()
 	resizeCanvas.height = document.getElementById("heightInputValue").value;
 	resizeContext = resizeCanvas.getContext('2d');
 	
-	setTimeout(() => { 
-		resizeContext.drawImage(thumbnailCanvas, 0, 0, resizeCanvas.width, resizeCanvas.height);
-		resizeContext = resizeCanvas.getContext('2d');
-	}, 100);
+	resizeContext.drawImage(thumbnailCanvas, 0, 0, resizeCanvas.width, resizeCanvas.height);
+	resizeContext = resizeCanvas.getContext('2d');
 	
-	setTimeout(() => {  
-		imageData = resizeContext.getImageData(0, 0, resizeCanvas.width, resizeCanvas.height);
-		generateValidColoringAndDraw();
-	}, 200);
+	await drawPreviewImage(true);
+	
+	imageData = resizeContext.getImageData(0, 0, resizeCanvas.width, resizeCanvas.height);
+	generateValidColoringAndDraw();
     
 })
 
@@ -139,8 +141,9 @@ document.getElementById("widthInputValue").addEventListener('change', async () =
 		document.getElementById("availablePartsString").innerHTML = `Available parts: <span style="color:red; font-weight:bold;">${partCount}</span>`;
 	}
 	
-	await drawPreviewImage();
+	await drawPreviewImage(true);
 })
+
 
 document.getElementById("heightInputValue").addEventListener('change', async () => {
 	const heightInput = document.getElementById("heightInputValue");
@@ -164,7 +167,7 @@ document.getElementById("heightInputValue").addEventListener('change', async () 
 		document.getElementById("availablePartsString").innerHTML = `Available parts: <span style="color:red; font-weight:bold;">${partCount}</span>`;
 	}
 	
-	await drawPreviewImage();
+	await drawPreviewImage(true);
 })
 
 
@@ -193,6 +196,23 @@ for (var i = 0; i < myPartButtonGroup.length; i++) {
 				document.getElementById("availablePartsString").innerHTML = `Available parts: <span style="color:red; font-weight:bold;">${partCount}</span>`;
 			}
 		})
+		// also add a callback to the input field itself
+		if (myPartButtonGroup[i].id.includes('Minus')) {
+			document.getElementById(myPartButtonGroup[i].id.replace('buttonMinus', 'input')).addEventListener('click', function () {
+				var partCount = updatePartList();
+				
+				if (validImagePresent && ((document.getElementById("widthInputValue").value * document.getElementById("heightInputValue").value) <= partCount)) {
+					document.getElementById("buttonCalculate").disabled = false;
+				} else {
+					document.getElementById("buttonCalculate").disabled = true;
+				}
+				if ((document.getElementById("widthInputValue").value * document.getElementById("heightInputValue").value) <= partCount) {
+					document.getElementById("availablePartsString").innerHTML = `Available parts: ${partCount}`;
+				} else {
+					document.getElementById("availablePartsString").innerHTML = `Available parts: <span style="color:red; font-weight:bold;">${partCount}</span>`;
+				}
+			})
+		}
 	}
 }
 
@@ -228,14 +248,14 @@ document.getElementById("cropCenterSquareButton")
     .addEventListener("click", async () => {
         document.getElementById("scaleToSquareButton").classList.remove('active');
 		document.getElementById("cropCenterSquareButton").classList.add('active');
-		await drawPreviewImage();
+		await drawPreviewImage(true);
     });
 	
 document.getElementById("scaleToSquareButton")
     .addEventListener("click", async () => {
         document.getElementById("cropCenterSquareButton").classList.remove('active');
 		document.getElementById("scaleToSquareButton").classList.add('active');
-		await drawPreviewImage();
+		await drawPreviewImage(true);
     });
 
 
@@ -244,7 +264,7 @@ document.getElementById("saturationRange")
 	.addEventListener("change", async () => {
 		const saturationValue = document.getElementById("saturationRange").value;
         document.getElementById("saturationRangeLabel").innerHTML = `Saturation: ${saturationValue}`;
-        await drawPreviewImage();
+        await drawPreviewImage(true);
     },
     false
 );
@@ -254,7 +274,7 @@ document.getElementById("hueRange")
 	.addEventListener("change", async () => {
 		const hueValue = document.getElementById("hueRange").value;
         document.getElementById("hueRangeLabel").innerHTML = `Hue: ${hueValue}`;
-        await drawPreviewImage();
+        await drawPreviewImage(true);
     },
     false
 );
@@ -264,7 +284,7 @@ document.getElementById("valueRange")
 	.addEventListener("change", async () => {
 		const valueValue = document.getElementById("valueRange").value;
         document.getElementById("valueRangeLabel").innerHTML = `Value: ${valueValue}`;
-        await drawPreviewImage();
+        await drawPreviewImage(true);
     },
     false
 );
@@ -274,15 +294,24 @@ document.getElementById("contrastRange")
 	.addEventListener("change", async () => {
 		const contrastValue = document.getElementById("contrastRange").value;
         document.getElementById("contrastRangeLabel").innerHTML = `Contrast: ${contrastValue}`;
-        await drawPreviewImage();
+        await drawPreviewImage(true);
+    },
+    false
+);
+
+
+document.getElementById("ignoreBlackCheck")
+	.addEventListener("change", async () => {
+		await drawPreviewImage(true);
+		updatePartList();
     },
     false
 );
 
 
 
-// input: r,g,b in [0,255], out: h in [0,360) and s,v in [0,1]
 function rgb2hsv(r, g, b) {
+	// r,g,b in [0,255], out: h in [0,360) and s,v in [0,1]
 	r = r/255;
 	g = g/255;
 	b = b/255;
@@ -294,83 +323,102 @@ function rgb2hsv(r, g, b) {
     return [60 * (h < 0 ? h + 6 : h), v && n / v, v];
 }
 
-// input: h in [0,360] and s,v in [0,1] - output: r,g,b in [0,255]
+
 function hsv2rgb(h, s, v) {
+	// h in [0,360] and s,v in [0,1] - r,g,b in [0,255]
     let f = (n, k = (n + h / 60) % 6) =>
         v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
     return [Math.round(f(5)*255), Math.round(f(3)*255), Math.round(f(1)*255)];
 }
 
 
-function adjustImageContrast(imgData, contrast){  //input range [-100..100]
-    var imData = imgData.data;
+
+function adjustImageHSV(imgData, rawPixels, h, s, v) {  //h [0,360], s, v [-1,1]
+	var ignoreBlack = document.getElementById("ignoreBlackCheck").checked;
+	
+    for(var i=0; i<imgData.data.length; i+=4){   //r,g,b,a
+		if (ignoreBlack && rawPixels[i] == 0 && rawPixels[i+1] == 0 && rawPixels[i+2] == 0){
+		} else {
+			const HSV = rgb2hsv(imgData.data[i], imgData.data[i+1], imgData.data[i+2]);
+			const newH = (HSV[0] + Math.round(h)) % 360;
+			const newS = Math.min(Math.max(HSV[1] + s, 0), 1);
+			const newV = Math.min(Math.max(HSV[2] + v, 0), 1);
+			const RGB = hsv2rgb(newH, newS, newV);
+			imgData.data[i]   = RGB[0];
+			imgData.data[i+1] = RGB[1];
+			imgData.data[i+2] = RGB[2];
+		}
+    }
+    return imgData;
+}
+
+
+function adjustImageContrast(imgData, rawPixels, contrast) {  //input range [-100,100]
+    var ignoreBlack = document.getElementById("ignoreBlackCheck").checked;
+	
     contrast = (contrast/100) + 1;  //convert to decimal & shift range: [0..2]
     var intercept = 128 * (1 - contrast);
-    for(var i=0; i<imData.length; i+=4){   //r,g,b,a
-        imData[i]   = imData[i]   * contrast + intercept;
-        imData[i+1] = imData[i+1] * contrast + intercept;
-        imData[i+2] = imData[i+2] * contrast + intercept;
+    for(var i=0; i<imgData.data.length; i+=4){   //r,g,b,a
+        if (ignoreBlack && rawPixels[i] == 0 && rawPixels[i+1] == 0 && rawPixels[i+2] == 0){
+		} else {
+			imgData.data[i]   = imgData.data[i]   * contrast + intercept;
+			imgData.data[i+1] = imgData.data[i+1] * contrast + intercept;
+			imgData.data[i+2] = imgData.data[i+2] * contrast + intercept;
+		}
     }
     return imgData;
 }
 
 
-function adjustImageHSV(imgData, h, s, v){  //h [0,360], s, v [-1, 1]
-    var imData = imgData.data;
-    for(var i=0; i<imData.length; i+=4){   //r,g,b,a
-		const HSV = rgb2hsv(imData[i], imData[i+1], imData[i+2]);
-		const newH = (HSV[0] + Math.round(h)) % 360;
-		const newS = Math.min(Math.max(HSV[1] + s, 0), 1);
-		const newV = Math.min(Math.max(HSV[2] + v, 0), 1);
-		const RGB = hsv2rgb(newH, newS, newV);
-        imData[i]   = RGB[0];
-        imData[i+1] = RGB[1];
-        imData[i+2] = RGB[2];
+function drawIgnoredRegions(imgData, rawPixels) {
+    var ignoreBlack = document.getElementById("ignoreBlackCheck").checked;
+	
+    for(var i=0; i<imgData.data.length; i+=4){   //r,g,b,a
+        if (ignoreBlack && rawPixels[i] == 0 && rawPixels[i+1] == 0 && rawPixels[i+2] == 0 && ((i/4) % (imgData.width - 1) % 9) < 3){
+			imgData.data[i] = 255;
+		}
     }
     return imgData;
 }
 
 
-
-async function drawPreviewImage () { //hsvChanged, contrastChanged
+async function drawPreviewImage (drawIgnored) { //hsvChanged, contrastChanged
 	const hueValue = document.getElementById("hueRange").value;
 	const saturationValue = document.getElementById("saturationRange").value;
 	const valueValue = document.getElementById("valueRange").value;
 	const contrastValue = document.getElementById("contrastRange").value;
 	const intermediateSize = 200;
 	
-	var tmpImage = [];
+	var tmpCanvas = document.createElement('canvas');
+	tmpCanvas.width = intermediateSize;
+	tmpCanvas.height = intermediateSize * previewImage.height/previewImage.width;
+	
+	const context = tmpCanvas.getContext("2d");
+	context.drawImage(previewImage, 0, 0, previewImage.width, previewImage.height, 0, 0, tmpCanvas.width, tmpCanvas.height);
+	var pixels = context.getImageData(0, 0, tmpCanvas.width, tmpCanvas.height).data;
+	
+	var imgData = context.createImageData(tmpCanvas.width, tmpCanvas.height);
+	Object.keys(pixels).forEach(pixel => {
+		imgData.data[pixel] = pixels[pixel];
+	});
+	
 	if ((hueValue != 0) || (saturationValue != 0) || (valueValue != 0) || (contrastValue != 0)) {
+		imgData = adjustImageHSV(imgData, pixels, hueValue, saturationValue/100, valueValue/100);
 		
-		var tmpCanvas = document.createElement('canvas');
-		tmpCanvas.width = intermediateSize;//previewImage.width;
-		tmpCanvas.height = intermediateSize;//previewImage.height;
-		
-		const context = tmpCanvas.getContext("2d");
-		context.drawImage(previewImage, 0, 0, previewImage.width, previewImage.height, 0, 0, intermediateSize, intermediateSize);
-		var pixels = context.getImageData(0, 0, tmpCanvas.width, tmpCanvas.height).data;
-		
-		var imageData = context.createImageData(tmpCanvas.width, tmpCanvas.height);
-		Object.keys(pixels).forEach(pixel => {
-			imageData.data[pixel] = pixels[pixel];
-		});
-		console.log(imageData)
-		
-		imageData = adjustImageHSV(imageData, hueValue, saturationValue/100, valueValue/100);
-		
-		imageData = adjustImageContrast(imageData, contrastValue);
-		
-		context.putImageData(imageData, 0, 0);
-		
-		var dataURL = tmpCanvas.toDataURL();
-		tmpImage = new Image(intermediateSize, intermediateSize);
-		tmpImage.src = dataURL;
-		
-		await tmpImage.decode()
-		
-	} else {
-		tmpImage = previewImage;
+		imgData = adjustImageContrast(imgData, pixels, contrastValue);
 	}
+	
+	if (drawIgnored) {
+		imgData = drawIgnoredRegions(imgData, pixels);
+	}
+	
+	context.putImageData(imgData, 0, 0);
+	
+	var dataURL = tmpCanvas.toDataURL();
+	tmpImage = new Image(tmpCanvas.width, tmpCanvas.height);
+	tmpImage.src = dataURL;
+	
+	await tmpImage.decode()
 	
 	var thumbnailCanvas = document.getElementById('thumbnailCanvas');
 	var thumbnailContext = thumbnailCanvas.getContext('2d');
@@ -407,19 +455,48 @@ var drawMosaic = function (im) {
 
     for (var x = 0; x < width; x++) {
         for (var y = 0; y < height; y++) {
-            var red = im[x][y][0];
-            var green = im[x][y][1];
-            var blue = im[x][y][2];
+			if (im[x][y][4] != 3) {
+				var red = im[x][y][0];
+				var green = im[x][y][1];
+				var blue = im[x][y][2];
 
-            var centerX = (x+0.5) * canvas.width / (width);
-            var centerY = (y+0.5) * canvas.height / (height);
-            var radius = canvas.width / (width+1)/2.1;
+				var centerX = (x+0.5) * canvas.width / (width);
+				var centerY = (y+0.5) * canvas.height / (height);
+				var radius = canvas.width / (width+1)/2.1;
 
-            context.fillStyle = rgbToHex(`(${red},${green},${blue})`);
-            context.beginPath();
-            context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-            context.closePath();
-            context.fill();
+				context.strokeStyle = rgbToHex(`(0,0,0)`);
+				context.fillStyle = rgbToHex(`(${red},${green},${blue})`);
+				context.beginPath();
+				if (im[x][y][4] == 2) {
+					context.rect(centerX-radius, centerY-radius, 2*radius, 2*radius);
+				} else {
+					context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+				}
+				context.closePath();
+				context.fill();
+				if (im[x][y][4] > 0) {
+					context.beginPath();
+					contrastRGB = getContrastColor(red, green, blue);
+					context.strokeStyle = rgbToHex(`(${contrastRGB[0]},${contrastRGB[1]},${contrastRGB[2]})`);
+					context.arc(centerX, centerY, radius*0.6, 0, 2 * Math.PI, false);
+					context.closePath();
+					context.stroke();
+				}
+			} else {
+				// Ignored part
+				var startX = x * canvas.width / (width);
+				var startY = (y+1) * canvas.height / (height);
+				var endX = (x+1) * canvas.width / (width);
+				var endY = y * canvas.height / (height);
+				context.strokeStyle = rgbToHex(`(255,0,0)`);
+				context.lineWidth = 3;
+				context.beginPath();
+				context.moveTo(startX, startY);
+				context.lineTo(endX, endY);
+				context.closePath();
+				context.stroke();
+				context.lineWidth = 1;
+			}
         }
     }
 
@@ -442,105 +519,105 @@ var getPartListOfOneSet = function (id) {
     switch (id) {
         case "Beatles":
             var partList = [
-                [5, 19, 29, 698], // r, g, b, count
-                [159, 195, 233, 57],
-                [248, 187, 61, 65],
-                [10, 52, 99, 121],
-                [108, 110, 104, 141],
-                [53, 33,  0, 554],
-                [169, 85,  0, 85],
-                [149, 138, 115, 137],
-                [160, 165, 169, 51],
-                [204, 112, 42, 29],
-                [254, 138, 24, 74],
-                [88, 42, 18, 250],
-                [96, 116, 161, 52],
-                [228, 205, 158, 283],
-                [255, 255, 255, 149]
+                [5, 19, 29, 698, 0], // r, g, b, count, type (0 = tile, 1 = stud, 2 = 1x1 plate)
+                [159, 195, 233, 57, 0],
+                [248, 187, 61, 65, 0],
+                [10, 52, 99, 121, 0],
+                [108, 110, 104, 141, 0],
+                [53, 33,  0, 554, 0],
+                [169, 85,  0, 85, 0],
+                [149, 138, 115, 137, 0],
+                [160, 165, 169, 51, 0],
+                [204, 112, 42, 29, 0],
+                [254, 138, 24, 74, 0],
+                [88, 42, 18, 250, 0],
+                [96, 116, 161, 52, 0],
+                [228, 205, 158, 283, 0],
+                [255, 255, 255, 149, 0]
 				];
             return partList;
         case "Monroe":
             var partList = [
-                [5, 19, 29, 629],
-				[228, 173, 200, 587],
-				[108, 110, 104, 131],
-				[200, 112, 160, 587],
-				[146, 57, 120, 46],
-				[54, 174, 191, 587],
-				[242, 205, 55, 587]
+                [5, 19, 29, 629, 0],
+				[228, 173, 200, 587, 0],
+				[108, 110, 104, 131, 0],
+				[200, 112, 160, 587, 0],
+				[146, 57, 120, 46, 0],
+				[54, 174, 191, 587, 0],
+				[242, 205, 55, 587, 0]
 				];
             return partList;
         case "IronMan":
             var partList = [
-				[5, 19, 29, 476],
-				[10, 52, 99, 529],
-				[108, 110, 104, 91],
-				[53, 33, 0, 196],
-				[169, 85, 0, 162],
-				[114, 14, 15, 214],
-				[149, 138, 115, 97],
-				[160, 165, 169, 31],
-				[204, 112, 42, 208],
-				[170, 127, 46, 232],
-				[201, 26, 9, 308],
-				[88, 42, 18, 191],
-				[96, 116, 161, 23],
-				[228, 205, 158, 155],
-				[255, 255, 255, 61]
+				[5, 19, 29, 476, 1],
+				[10, 52, 99, 529, 1],
+				[108, 110, 104, 91, 1],
+				[53, 33, 0, 196, 1],
+				[169, 85, 0, 162, 1],
+				[114, 14, 15, 214, 1],
+				[149, 138, 115, 97, 1],
+				[160, 165, 169, 31, 1],
+				[204, 112, 42, 208, 1],
+				[170, 127, 46, 232, 1],
+				[201, 26, 9, 308, 1],
+				[88, 42, 18, 191, 1],
+				[96, 116, 161, 23, 1],
+				[228, 205, 158, 155, 1],
+				[255, 255, 255, 61, 1]
 				];
             return partList;
 		case "Sith":
             var partList = [
-				[5, 19, 29, 877],
-				[255, 240, 58, 92],
-				[10, 52, 99, 447],
-				[108, 110, 104, 151],
-				[53, 33, 0, 200],
-				[114, 14, 15, 328],
-				[160, 165, 169, 110],
-				[254, 138, 24, 125],
-				[87, 88, 87, 271],
-				[201, 26, 9, 286],
-				[96, 116, 161, 139],
-				[255, 255, 255, 187]
+				[5, 19, 29, 877, 1],
+				[255, 240, 58, 92, 1],
+				[10, 52, 99, 447, 1],
+				[108, 110, 104, 151, 1],
+				[53, 33, 0, 200, 1],
+				[114, 14, 15, 328, 1],
+				[160, 165, 169, 110, 1],
+				[254, 138, 24, 125, 1],
+				[87, 88, 87, 271, 1],
+				[201, 26, 9, 286, 1],
+				[96, 116, 161, 139, 1],
+				[255, 255, 255, 187, 1]
 				];
 			return partList;
 		case "Hogwarts":
             var partList = [
-				[5, 19, 29, 593],
-				[0, 85, 191, 431],
-				[75, 159, 74, 4],
-				[114, 14, 15, 503],
-				[137, 135, 136, 630],
-				[35, 120, 65, 499],
-				[160, 165, 169, 236],
-				[54, 174, 191, 10],
-				[87, 88, 87, 153],
-				[170, 127, 46, 604],
-				[201, 26, 9, 15],
-				[255, 255, 255, 369]
+				[5, 19, 29, 593, 1],
+				[0, 85, 191, 431, 1],
+				[75, 159, 74, 4, 1],
+				[114, 14, 15, 503, 1],
+				[137, 135, 136, 630, 1],
+				[35, 120, 65, 499, 1],
+				[160, 165, 169, 236, 1],
+				[54, 174, 191, 10, 1],
+				[87, 88, 87, 153, 1],
+				[170, 127, 46, 604, 1],
+				[201, 26, 9, 15, 1],
+				[255, 255, 255, 369, 1]
 				];
 			return partList;
 		case "Portrait":
 			var partList = [
-				[5, 19, 29, 900],
-				[108, 110, 104, 900],
-				[160, 165, 169, 900],
-				[255, 255, 255, 900],
-				[242, 205, 55, 900]
+				[5, 19, 29, 900, 2],
+				[108, 110, 104, 900, 2],
+				[160, 165, 169, 900, 2],
+				[255, 255, 255, 900, 2],
+				[242, 205, 55, 900, 2]
 				];
 			return partList;
 		case "Mickey":
 			var partList = [
-				[5, 19, 29, 662],
-				[10, 52, 99, 409],
-				[108, 110, 104, 79],
-				[53, 33, 0, 76],
-				[114, 14, 15, 96],
-				[160, 165, 169, 59],
-				[201, 26, 9, 213],
-				[228, 205, 158, 32],
-				[255, 255, 255, 835]
+				[5, 19, 29, 662, 0],
+				[10, 52, 99, 409, 0],
+				[108, 110, 104, 79, 0],
+				[53, 33, 0, 76, 0],
+				[114, 14, 15, 96, 0],
+				[160, 165, 169, 59, 0],
+				[201, 26, 9, 213, 0],
+				[228, 205, 158, 32, 0],
+				[255, 255, 255, 835, 0]
 				];
 			return partList;
         default:
@@ -560,7 +637,7 @@ var updatePartList = function () {
 		var partList = getPartListOfOneSet(setName);
 		// Adjust number of parts in partList
 		for (var col = 0; col < partList.length; col++) {
-			partList[col][3] = partList[col][3] * multiplier;
+			partList[col][3] = Math.floor(partList[col][3] * multiplier); // floor in case of non-integer multiplier
 			totalCount += partList[col][3];
 		}
 		
@@ -571,20 +648,27 @@ var updatePartList = function () {
 		} else {
 			for (var col1 = 0; col1 < partList.length; col1++) {
 				if (partList[col1][3] > 0) {
-					var notAlreadyPresent = true;
+					var alreadyPresent = false;
 					for (var col2 = 0; col2 < fullPartList.length; col2++) {
-						if ((fullPartList[col2][0] == partList[col1][0]) && (fullPartList[col2][1] == partList[col1][1]) && (fullPartList[col2][2] == partList[col1][2])) {
-							notAlreadyPresent = false;
+						if ((fullPartList[col2][0] == partList[col1][0]) && (fullPartList[col2][1] == partList[col1][1]) && (fullPartList[col2][2] == partList[col1][2]) && (fullPartList[col2][5] == partList[col1][5])) {
+							alreadyPresent = true;
 							fullPartList[col2][3] = fullPartList[col2][3] + partList[col1][3];
 						}
 					}
-					if (notAlreadyPresent) {
+					if (!alreadyPresent) {
 						fullPartList.push(partList[col1]);
 					}
 				}
 			}
 		}
 	}
+	
+	const ignoreBlack = document.getElementById("ignoreBlackCheck").checked;
+	if (ignoreBlack) {
+		// add extra color to encode ignored regions
+		fullPartList.push([0, 0, 0, 1000000, 3]); // 1000000 is big enough to be unlimited
+	}
+	
 	return totalCount;
 }
 
@@ -606,23 +690,33 @@ const generateValidColoringAndDraw = async () => {
 
 async function generateValidColoring () {
 	
-	document.getElementById("calculate-progress-bar").style.width = "100%";
-	document.getElementById("calculate-progress-bar").style.width = "0%";
+	document.getElementById("calculate-progress-bar").style.width = "5%";
 	document.getElementById("calculate-progress-container").hidden = false;
 	document.getElementById("buttonCalculate").hidden = true;
 	await sleep(5);
 	
 	var colorList = JSON.parse(JSON.stringify(fullPartList)); // bad way to do a deep copy, but it works
 	var colorList2 = JSON.parse(JSON.stringify(fullPartList)); // bad way to do a deep copy, but it works
-	
-	//var usePartLimitsButton = document.getElementById("unlimitedPartsButton");
-	var limitedParts = true;// !(usePartLimitsButton.classList.value.includes("active"));
 
+	var limitedParts = true;
+	
+	// We need to get the raw pixels if we want to exclude black regions
+	const ignoreBlack = document.getElementById("ignoreBlackCheck").checked;
+	if (ignoreBlack) {
+		var tmpCanvas = document.createElement('canvas');
+		tmpCanvas.width = imageData.width;
+		tmpCanvas.height = imageData.height;
+		const context = tmpCanvas.getContext("2d");
+		context.drawImage(previewImage, 0, 0, previewImage.width, previewImage.height, 0, 0, imageData.width, imageData.height);
+		var rawPixels = context.getImageData(0, 0, imageData.width, imageData.height).data;
+	}
+	
+	
 	// Calculate distance of all pixels to all colors
 	// Add a bit of randomness into color for jittering
 	var pxCount = 0;
 	var distMat = createArray(imageData.width, imageData.height, colorList.length);
-	var outIm = createArray(imageData.width, imageData.height, 3);
+	var outIm = createArray(imageData.width, imageData.height, 5);
 	var outCol = createArray(imageData.width, imageData.height);
 	
 	console.log('starting coloring');
@@ -638,15 +732,18 @@ async function generateValidColoring () {
 				allBlack = false
 			}
 			
-			// Calculate distance of color of each pixel 
-			// to each color in the list
-			// and get best available color at the same time
-			for (var col = 0; col < colorList.length; col++) {
-				distMat[x][y][col] = Math.pow(red-colorList[col][0], 2) + Math.pow(green-colorList[col][1], 2) + Math.pow(blue-colorList[col][2], 2);
-				
-				
-				//distMat[x][y][col] = deltaE(rgb2lab([red, green, blue]), rgb2lab(colorList[col].slice(0,3)));
-				
+			if (ignoreBlack && rawPixels[index] == 0 && rawPixels[index + 1] == 0 && rawPixels[index + 2] == 0) {
+				// Ignore pixel -> set all distances to Inf, the last color is the ignore flag
+				for (var col = 0; col < colorList.length-1; col++) {
+					distMat[x][y][col] = 3*256*256;
+				}
+				distMat[x][y][colorList.length-1] = 0;
+			} else {
+				// Calculate distance of pixel color to each color in the list
+				for (var col = 0; col < colorList.length; col++) {
+					distMat[x][y][col] = Math.pow(red-colorList[col][0], 2) + Math.pow(green-colorList[col][1], 2) + Math.pow(blue-colorList[col][2], 2);
+					//distMat[x][y][col] = deltaE(rgb2lab([red, green, blue]), rgb2lab(colorList[col].slice(0,3)));
+				}
 			}
 		}
 	}
@@ -686,20 +783,10 @@ async function generateValidColoring () {
 		}
 		
 		// place part
-		outIm[bestX][bestY][0] = colorList[bestCol][0];
-		outIm[bestX][bestY][1] = colorList[bestCol][1];
-		outIm[bestX][bestY][2] = colorList[bestCol][2];
-		
-		for (var col = 0; col < colorList.length; col++) { // this x,y pos is set now
-			distMat[bestX][bestY][col] = Infinity;
-		}
-		
 		outCol[bestX][bestY] = bestCol;
-		pxCount = pxCount + 1;
 		
-		if (pxCount % 100 == 0) {
-			document.getElementById("calculate-progress-bar").style.width = `${15+20*pxCount/(imageData.width*imageData.height)}%`;
-			await sleep(5);
+		for (var col = 0; col < colorList.length; col++) { // this x,y pos is filled now
+			distMat[bestX][bestY][col] = Infinity;
 		}
 		
 		// Reduce count of that color in pool
@@ -707,25 +794,19 @@ async function generateValidColoring () {
 			colorList[bestCol][3] = colorList[bestCol][3] - 1;
 		}
 		
-		// Check that there are still parts left, otherwise exit
-		var stillPartsAvailable = false;
-		for (var col = 0; col < colorList.length; col++){
-			if (colorList[col][3] > 0) {
-				stillPartsAvailable = true;
-			}
-		}
-		if (!stillPartsAvailable) {
-			alert('Insufficient parts for this specific mosaic size.')
-			return outIm;
-		}
-		
-		// Exit while loop if done
+		// Exit while loop if every pixel is filled
+		pxCount = pxCount + 1;
 		if (pxCount == (imageData.width * imageData.height)) {
 			keepRunning = false;
 		}
+		
+		if (pxCount % 200 == 0) {
+			document.getElementById("calculate-progress-bar").style.width = `${15+20*pxCount/(imageData.width*imageData.height)}%`;
+			await sleep(5);
+		}
 	}
 	
-	outCol2 = JSON.parse(JSON.stringify(outCol));
+	/*outCol2 = JSON.parse(JSON.stringify(outCol));
 	var finalDist = 0;
 	for (var x = 0; x < imageData.width; x++) {
         for (var y = 0; y < imageData.height; y++) {
@@ -733,9 +814,8 @@ async function generateValidColoring () {
 				finalDist += distMatOrig[x][y][col];
 			}
 		}
-	}
+	}*/
 	console.log('first coloring done');
-	//drawMosaic(outIm);
 	
 	if (limitedParts) {
 		console.log('optimizing');
@@ -745,6 +825,7 @@ async function generateValidColoring () {
 		while (keepRunning && count < 100) {
 			count = count +1;
 			
+			// Update waitbar
 			document.getElementById("calculate-progress-bar").style.width = `${35+(Math.sqrt(count) / 10) * 65}%`;
 			document.getElementById("calculate-progress-bar").innerHTML = `Optimizing - Iteration ${count}`;
 			await sleep(5);
@@ -790,12 +871,6 @@ async function generateValidColoring () {
 						if (bestCoice < 0) {
 							swapCount += 1;
 							// -> swap
-							outIm[x][y][0] = colorList[bestCols[bestCol]][0];
-							outIm[x][y][1] = colorList[bestCols[bestCol]][1];
-							outIm[x][y][2] = colorList[bestCols[bestCol]][2];
-							outIm[bestX][bestY][0] = colorList[outCol[x][y]][0];
-							outIm[bestX][bestY][1] = colorList[outCol[x][y]][1];
-							outIm[bestX][bestY][2] = colorList[outCol[x][y]][2];
 							outCol[bestX][bestY] = outCol[x][y];
 							outCol[x][y] = bestCols[bestCol];
 							
@@ -818,9 +893,6 @@ async function generateValidColoring () {
 								// There is a better color left in the pool -> swap
 								colorList[bestCols[bestCol]][3] = colorList[bestCols[bestCol]][3] - 1;
 								colorList[outCol[x][y]][3] = colorList[outCol[x][y]][3] + 1;
-								outIm[x][y][0] = colorList[bestCols[bestCol]][0];
-								outIm[x][y][1] = colorList[bestCols[bestCol]][1];
-								outIm[x][y][2] = colorList[bestCols[bestCol]][2];
 								outCol[x][y] = bestCols[bestCol];
 								keepRunning = true;
 							}
@@ -832,14 +904,19 @@ async function generateValidColoring () {
 		}
 	}
 	
+	// Produce final outIm from outCol and colorList
 	var finalDist = 0;
 	for (var x = 0; x < imageData.width; x++) {
         for (var y = 0; y < imageData.height; y++) {
 			finalDist += distMatOrig[x][y][outCol[x][y]];
-			outIm[x][y][3] = outCol[x][y];
+			outIm[x][y][0] = colorList[outCol[x][y]][0];
+			outIm[x][y][1] = colorList[outCol[x][y]][1];
+			outIm[x][y][2] = colorList[outCol[x][y]][2];
+			outIm[x][y][3] = outCol[x][y]; // color number
+			outIm[x][y][4] = colorList[outCol[x][y]][4]; // brick type
 		}
 	}
-	
+	//console.log(outIm)
 	document.getElementById("calculate-progress-container").hidden = true;
 	document.getElementById("buttonCalculate").hidden = false;
 	document.getElementById("pdf-progress-container").hidden = true;
@@ -862,6 +939,19 @@ function createArray(length) {
 }
 
 
+function getContrastColor(r, g, b) {
+	var out = [];
+	if (r+g+b > 255*1.5) {
+		out[0] = r * 0.7;
+		out[1] = g * 0.7;
+		out[2] = b * 0.7;
+	} else {
+		out[0] = 255 - (255 - r) * 0.7;
+		out[1] = 255 - (255 - g) * 0.7;
+		out[2] = 255 - (255 - b) * 0.7;
+	}
+	return out;
+}
 
 
 
@@ -939,8 +1029,9 @@ function generatePDFTitlePage(pdf, timeString) {
 	}
 	
 	// Draw part list
-	pdf.setFillColor(0,0,0);
+	pdf.setFillColor(40,40,40);
 	var radius = pdfWidth * 0.013;
+	var contrastDifference = 0;
 	pdf.setFontSize(10);
 	if (reassignedColors.length < 23) {
 		radius = pdfWidth * 0.02;
@@ -949,20 +1040,39 @@ function generatePDFTitlePage(pdf, timeString) {
 	pdf.rect(pdfWidth * 0.07, 50, pdfWidth * 0.05, pdfWidth * 0.005 + (reassignedColors.length * 2 * (radius+0.0025*pdfWidth)), 'F');
 	pdf.setLineWidth(0.3);
 	for (var i = 0; i < reassignedColors.length; i++) {
-		if ((fullPartList[reassignedColors[i]][0]+fullPartList[reassignedColors[i]][1]+fullPartList[reassignedColors[i]][2]) > 300) {
+		if ((fullPartList[reassignedColors[i]][0]+fullPartList[reassignedColors[i]][1]+fullPartList[reassignedColors[i]][2]) > 380) {
 			pdf.setDrawColor(0,0,0);
 			pdf.setTextColor(0,0,0);
+			contrastDifference = -40;
 		} else {
 			pdf.setDrawColor(255,255,255);
 			pdf.setTextColor(255,255,255);
+			contrastDifference = 40;
 		}
 		pdf.setFillColor(fullPartList[reassignedColors[i]][0],fullPartList[reassignedColors[i]][1],fullPartList[reassignedColors[i]][2]);
 
 		const x2 = pdfWidth * 0.075 + radius;
 		const y2 = 50 + pdfWidth * 0.005 * (i+1) + ((i+0.5) * 2 * radius);
-		pdf.circle(x2, y2, radius-0.5, 'FD');
-		colorNumber = i+1;
-		pdf.text(x2-1-1.5*(i > 8), y2+1.5, colorNumber.toString());
+		//pdf.circle(x2, y2, radius-0.5, 'FD');
+		
+		if (fullPartList[reassignedColors[i]][4] == 2) {
+			pdf.rect(x2-radius,y2-radius,radius*2,radius*2,'FD');
+		} else {
+			pdf.circle(x2, y2, radius-0.5, 'FD');
+		}
+		
+		if (fullPartList[reassignedColors[i]][4] > 0 && fullPartList[reassignedColors[i]][4] < 3) {
+			contrastRGB = getContrastColor(fullPartList[reassignedColors[i]][0], fullPartList[reassignedColors[i]][1], fullPartList[reassignedColors[i]][2]);
+			pdf.setDrawColor(contrastRGB[0],contrastRGB[1], contrastRGB[2]);
+			pdf.circle(x2, y2, (radius*0.7)-0.5, 'S');
+		}
+		
+		if (fullPartList[reassignedColors[i]][4] == 3){
+			pdf.text(x2-1, y2+1.5, '?');
+		} else {
+			colorNumber = i+1;
+			pdf.text(x2-1-1.5*(colorNumber > 9), y2+1.5, colorNumber.toString());
+		}
 		
 		pdf.setTextColor(0,0,0);
 		pdf.text(x2 + 2.5 * radius, y2+1.5, `${colorCounts[reassignedColors[i]]} x`);
@@ -1027,20 +1137,38 @@ function generatePDFSectionPage( pdf, sectionNumber, timeString ) {
 	for (var x = 0; x < sectionSize; x++) {
 		for (var y = 0; y < sectionSize; y++) {
 			if (((x + xOffset) < width) && ((y + yOffset) < height)) {
-				if ((finalMosaicIm[x + xOffset][y + yOffset][0]+finalMosaicIm[x + xOffset][y + yOffset][1]+finalMosaicIm[x + xOffset][y + yOffset][2]) > 300) {
+				if ((finalMosaicIm[x + xOffset][y + yOffset][0]+finalMosaicIm[x + xOffset][y + yOffset][1]+finalMosaicIm[x + xOffset][y + yOffset][2]) > 380) {
 					pdf.setDrawColor(0,0,0);
 					pdf.setTextColor(0,0,0);
+					contrastDifference = -40;
 				} else {
 					pdf.setDrawColor(255,255,255);
 					pdf.setTextColor(255,255,255);
+					contrastDifference = 40;
 				}
 				pdf.setFillColor(finalMosaicIm[x + xOffset][y + yOffset][0], finalMosaicIm[x + xOffset][y + yOffset][1], finalMosaicIm[x + xOffset][y + yOffset][2]);
 
 				const x2 = pdfWidth * 0.15 + (x * 2 + 1) * radius;
 				const y2 = pdfHeight * 0.15 + (y * 2 + 1) * radius;
-				pdf.circle(x2, y2, radius-0.5, 'FD');
-				colorNumber = reassignedColors[finalMosaicIm[x + xOffset][y + yOffset][3]]+1;
-				pdf.text(x2-1-1.5*(finalMosaicIm[x + xOffset][y + yOffset][3] > 8), y2+1.5, colorNumber.toString());
+				
+				if (fullPartList[finalMosaicIm[x + xOffset][y + yOffset][3]][4] == 2) {
+					pdf.rect(x2-radius+0.5,y2-radius+0.5,radius*2-1,radius*2-1,'FD');
+				} else {
+					pdf.circle(x2, y2, radius-0.5, 'FD');
+				}
+				
+				if (fullPartList[finalMosaicIm[x + xOffset][y + yOffset][3]][4] > 0 && fullPartList[finalMosaicIm[x + xOffset][y + yOffset][3]][4] < 3)  {
+					contrastRGB = getContrastColor(fullPartList[finalMosaicIm[x + xOffset][y + yOffset][3]][0], fullPartList[finalMosaicIm[x + xOffset][y + yOffset][3]][1], fullPartList[finalMosaicIm[x + xOffset][y + yOffset][3]][2]);
+					pdf.setDrawColor(contrastRGB[0],contrastRGB[1], contrastRGB[2]);
+					pdf.circle(x2, y2, (radius*0.7)-0.5, 'FD');
+				}
+				
+				if (fullPartList[finalMosaicIm[x + xOffset][y + yOffset][3]][4] == 3){
+					pdf.text(x2-1, y2+1.5, '?');
+				} else {
+					colorNumber = reassignedColors[finalMosaicIm[x + xOffset][y + yOffset][3]]+1;
+					pdf.text(x2-1-1.5*(colorNumber > 9), y2+1.5, colorNumber.toString());
+				}
 			}
 		}
 	}
