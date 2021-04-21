@@ -718,7 +718,7 @@ async function generateValidColoring () {
 	var distMat = createArray(imageData.width, imageData.height, colorList.length);
 	var outIm = createArray(imageData.width, imageData.height, 5);
 	var outCol = createArray(imageData.width, imageData.height);
-	
+
 	console.log('starting coloring');
 	var allBlack = true;
 	for (var x = 0; x < imageData.width; x++) {
@@ -743,6 +743,9 @@ async function generateValidColoring () {
 				for (var col = 0; col < colorList.length; col++) {
 					distMat[x][y][col] = Math.pow(red-colorList[col][0], 2) + Math.pow(green-colorList[col][1], 2) + Math.pow(blue-colorList[col][2], 2);
 					//distMat[x][y][col] = deltaE(rgb2lab([red, green, blue]), rgb2lab(colorList[col].slice(0,3)));
+				}
+				if (ignoreBlack) {
+					distMat[x][y][colorList.length-1] = 3*256*256; // Do not use the ignore flag
 				}
 			}
 		}
