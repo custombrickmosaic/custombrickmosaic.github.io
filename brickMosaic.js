@@ -24,6 +24,8 @@ function init() {
 	document.getElementById("inputHogwarts").value = 0;
 	document.getElementById("inputMickey").value = 0;
 	document.getElementById("inputPortrait").value = 0;
+	document.getElementById("inputWorld").value = 0;
+	document.getElementById("inputArtProject").value = 0;
 
 	var numReqParts = document.getElementById("heightInputValue").value * document.getElementById("widthInputValue").value;
 	document.getElementById("requiredPartsString").innerHTML = `Required parts: ${numReqParts}`;
@@ -599,7 +601,7 @@ var getPartListOfOneSet = function (id) {
 				];
 			return partList;
 		case "Portrait":
-			var partList = [
+            var partList = [
 				[5, 19, 29, 900, 2],
 				[108, 110, 104, 900, 2],
 				[160, 165, 169, 900, 2],
@@ -608,7 +610,7 @@ var getPartListOfOneSet = function (id) {
 				];
 			return partList;
 		case "Mickey":
-			var partList = [
+            var partList = [
 				[5, 19, 29, 662, 0],
 				[10, 52, 99, 409, 0],
 				[108, 110, 104, 79, 0],
@@ -621,7 +623,7 @@ var getPartListOfOneSet = function (id) {
 				];
 			return partList;
 		case "World":
-			var partList = [
+            var partList = [
 				[75,159,74,601,0],
 				[248,187,61,599,0],
 				[255,105,143,601,0],
@@ -634,6 +636,27 @@ var getPartListOfOneSet = function (id) {
 				[255,255,255,3064,1]
 				];
 			return partList;
+		case "ArtProject":
+            var partList = [
+				[108, 116, 211, 317, 0],
+				[133, 139, 107, 127, 0],
+				[204, 112, 42, 281, 0],
+				[34,237,167,119,0],
+				[228, 173, 200, 58, 0],
+				[88, 42, 18, 307, 0],
+				[248,187,61,175,0],
+				[10,52,99,660,0],
+				[187,233,11,166,0],
+				[75,159,74,148,0],
+				[254, 138, 24, 121, 0],
+				[5, 19, 29, 254, 0],
+				[200, 112, 160, 299, 0],
+				[201, 26, 9, 190, 0],
+				[228,205,158,241,0],
+				[255, 255, 255, 474, 0]
+				];
+			return partList;
+
         default:
             console.log("unknown");
             break;
