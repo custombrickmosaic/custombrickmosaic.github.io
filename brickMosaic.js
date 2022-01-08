@@ -1030,10 +1030,10 @@ function generatePDFTitlePage(pdf, timeString) {
 	
 	pdf.setFontSize(14);
 	pdf.text(30, 34, `Source: ${imageFilename}`);
-	pdf.text(30, 40, `Resolution: ${width} x ${height}`);
 	
 	const numSectionsX = Math.ceil(width / sectionSize);
 	const numSectionsY = Math.ceil(height / sectionSize);
+	pdf.text(30, 40, `Resolution: ${realWidth} x ${realHeight} (in ${numSectionsX} x ${numSectionsY} sections)`);
 	
 	pdf.setLineWidth(1.5)
 	pdf.setDrawColor(200,200,200);
@@ -1042,7 +1042,7 @@ function generatePDFTitlePage(pdf, timeString) {
 	for (var x = 0; x < numSectionsX; x++) {
 		for (var y = 0; y < numSectionsY; y++) {
 			pdf.rect(pdfWidth * 0.25 + x / numSectionsX * canvasWidthMM, 50 + y / numSectionsY * canvasHeightMM, canvasWidthMM / numSectionsX, canvasHeightMM / numSectionsY, 'S');
-			pdf.text(pdfWidth * 0.25 + (x + 0.4) / numSectionsX * canvasWidthMM, 50 + (y + 0.5) / numSectionsY * canvasHeightMM, `${x + y*Math.ceil(height / sectionSize) + 1}`);
+			pdf.text(pdfWidth * 0.25 + (x + 0.4) / numSectionsX * canvasWidthMM, 50 + (y + 0.5) / numSectionsY * canvasHeightMM, `${x + y*numSectionsX + 1}`);
 		}
 	}
 	
@@ -1073,11 +1073,12 @@ function generatePDFTitlePage(pdf, timeString) {
 	pdf.setFillColor(40,40,40);
 	var radius = pdfWidth * 0.013;
 	var contrastDifference = 0;
-	pdf.setFontSize(10);
+	var baseFontSize = 9;
 	if (reassignedColors.length < 23) {
 		radius = pdfWidth * 0.02;
-		pdf.setFontSize(12);
+		baseFontSize = 12;
 	}
+	pdf.setFontSize(baseFontSize);
 	pdf.rect(pdfWidth * 0.07, 50, pdfWidth * 0.05, pdfWidth * 0.005 + (reassignedColors.length * 2 * (radius+0.0025*pdfWidth)), 'F');
 	pdf.setLineWidth(0.3);
 	for (var i = 0; i < reassignedColors.length; i++) {
@@ -1092,7 +1093,7 @@ function generatePDFTitlePage(pdf, timeString) {
 		}
 		pdf.setFillColor(fullPartList[reassignedColors[i]][0],fullPartList[reassignedColors[i]][1],fullPartList[reassignedColors[i]][2]);
 
-		const x2 = pdfWidth * 0.075 + radius;
+		const x2 = pdfWidth * 0.07 + radius * 1.25;
 		const y2 = 50 + pdfWidth * 0.005 * (i+1) + ((i+0.5) * 2 * radius);
 		//pdf.circle(x2, y2, radius-0.5, 'FD');
 		
@@ -1117,9 +1118,9 @@ function generatePDFTitlePage(pdf, timeString) {
 		
 		pdf.setTextColor(0,0,0);
 		pdf.text(x2 + 2.5 * radius, y2-0.1, `${colorCounts[reassignedColors[i]]} x`);
-		pdf.setFontSize(pdf.getFontSize()-6);
+		pdf.setFontSize(6);
 		pdf.text(x2 + 2.6 * radius, y2+2.6, `${fullPartList[reassignedColors[i]][5]}`);
-		pdf.setFontSize(pdf.getFontSize()+6);
+		pdf.setFontSize(baseFontSize);
 	}
 	
 	// Footer
