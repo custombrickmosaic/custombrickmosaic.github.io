@@ -755,7 +755,8 @@ async function generateValidColoring () {
 	var outIm = createArray(imageData.width, imageData.height, 5);
 	var outCol = createArray(imageData.width, imageData.height);
 
-	console.log('starting coloring');
+	console.log('Starting coloring');
+	console.log('Calculating color distances ...');
 	var allBlack = true;
 	for (var x = 0; x < imageData.width; x++) {
         for (var y = 0; y < imageData.height; y++) {
@@ -794,6 +795,7 @@ async function generateValidColoring () {
 		return;
 	}
 	
+	console.log('Initial guess ...');
 	document.getElementById("calculate-progress-bar").style.width = "15%";
 	document.getElementById("calculate-progress-bar").innerHTML = "Initial guess";
 	await sleep(5);
@@ -801,7 +803,6 @@ async function generateValidColoring () {
 	// Deep copy distMat
 	var distMatOrig = JSON.parse(JSON.stringify(distMat));
 	var pxCount = 0;
-	
 	while (pxCount < (imageData.width * imageData.height)) { // Exit while loop when every pixel is filled
 		// Get next best brick to place with minimal dist
 		var bestDist = Infinity;
@@ -853,10 +854,9 @@ async function generateValidColoring () {
 			}
 		}
 	}*/
-	console.log('first coloring done');
 	
 	if (limitedParts) {
-		console.log('optimizing');
+		console.log('Optimizing by swapping parts ...');
 		var keepRunning = true;
         var count = 0;
 		
@@ -871,7 +871,6 @@ async function generateValidColoring () {
 			keepRunning = false;
 			var swapCount = 0;
 			var swapPoolCount = 0;
-			console.log(`iteration ${count}`);
 			for (var x = 0; x < imageData.width; x++) {
 				for (var y = 0; y < imageData.height; y++) {
 					
@@ -938,7 +937,7 @@ async function generateValidColoring () {
 					}
 				}
 			}
-			console.log(`   swapped ${swapCount} parts + ${swapPoolCount} with pool`);
+			console.log(`   Iteration ${count} swapped ${swapCount} parts + ${swapPoolCount} with pool`);
 		}
 	}
 	
