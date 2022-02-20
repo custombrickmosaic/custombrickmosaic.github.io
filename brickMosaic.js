@@ -751,7 +751,6 @@ async function generateValidColoring () {
 	
 	// Calculate distance of all pixels to all colors
 	// Add a bit of randomness into color for jittering
-	var pxCount = 0;
 	var distMat = createArray(imageData.width, imageData.height, colorList.length);
 	var outIm = createArray(imageData.width, imageData.height, 5);
 	var outCol = createArray(imageData.width, imageData.height);
@@ -801,9 +800,9 @@ async function generateValidColoring () {
 	
 	// Deep copy distMat
 	var distMatOrig = JSON.parse(JSON.stringify(distMat));
+	var pxCount = 0;
 	
-	var keepRunning = true;
-	while (keepRunning) {
+	while (pxCount < (imageData.width * imageData.height)) { // Exit while loop when every pixel is filled
 		// Get next best brick to place with minimal dist
 		var bestDist = Infinity;
 		var bestX = -1;
@@ -811,12 +810,15 @@ async function generateValidColoring () {
 		var bestCol = -1;
 		for (var x = 0; x < imageData.width; x++) {
 			for (var y = 0; y < imageData.height; y++) {
-				for (var col = 0; col < colorList.length; col++) {
-					if (distMat[x][y][col] < bestDist && ((colorList[col][3] > 0) || !limitedParts)) { // check that best color is still available
-						bestDist = distMat[x][y][col];
-						bestX = x;
-						bestY = y;
-						bestCol = col;
+				// Only check distance if part is not yet set. This saves ~half the computations
+				if (outCol[x][y] === undefined) {
+					for (var col = 0; col < colorList.length; col++) {
+						if (distMat[x][y][col] < bestDist && ((colorList[col][3] > 0) || !limitedParts)) { // check that best color is still available
+							bestDist = distMat[x][y][col];
+							bestX = x;
+							bestY = y;
+							bestCol = col;
+						}
 					}
 				}
 			}
@@ -834,11 +836,7 @@ async function generateValidColoring () {
 			colorList[bestCol][3] = colorList[bestCol][3] - 1;
 		}
 		
-		// Exit while loop if every pixel is filled
 		pxCount = pxCount + 1;
-		if (pxCount == (imageData.width * imageData.height)) {
-			keepRunning = false;
-		}
 		
 		if (pxCount % 200 == 0) {
 			document.getElementById("calculate-progress-bar").style.width = `${15+20*pxCount/(imageData.width*imageData.height)}%`;
@@ -859,7 +857,7 @@ async function generateValidColoring () {
 	
 	if (limitedParts) {
 		console.log('optimizing');
-		keepRunning = true;
+		var keepRunning = true;
         var count = 0;
 		
 		while (keepRunning && count < 100) {
