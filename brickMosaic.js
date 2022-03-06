@@ -26,6 +26,8 @@ function init() {
 	document.getElementById("inputPortrait").value = 0;
 	document.getElementById("inputWorld").value = 0;
 	document.getElementById("inputArtProject").value = 0;
+	document.getElementById("inputElvis").value = 0;
+	document.getElementById("inputBatman").value = 0;
 
 	var numReqParts = document.getElementById("heightInputValue").value * document.getElementById("widthInputValue").value;
 	document.getElementById("requiredPartsString").innerHTML = `Required parts: ${numReqParts}`;
@@ -656,7 +658,46 @@ var getPartListOfOneSet = function (id) {
 				[173, 195, 192, 329, 98138, 6322818]
 				];
 			return partList;
-
+		case "Elvis":
+            var partList = [
+				[5, 19, 29, 596, 98138, 6284070],
+				[201, 26, 9, 80, 98138, 6284574],
+				[255, 255, 255, 71, 98138, 6284572],
+				[228, 205, 158, 106, 98138, 6284573],
+				[88, 42, 18, 233, 98138, 6284586],
+				[160, 165, 169, 26, 98138, 6284071],
+				[108, 110, 104, 52, 98138, 6284596],
+				[90, 147, 219, 230, 98138, 6284602],
+				[246, 215, 179, 360, 98138, 6315196],
+				[170, 125, 85, 182, 98138, 6284589],
+				[208, 145, 104, 258, 98138, 6343472],
+				[10, 52, 99, 152, 98138, 6284584],
+				[53, 33, 0, 206, 98138, 6322813],
+				[114, 14, 15, 339, 98138, 6284585],
+				[96, 116, 161, 175, 98138, 6322842],
+				[169, 85, 0, 179, 98138, 6322840]
+				];
+			return partList;
+		case "Batman":
+            var partList = [
+				[5, 19, 29, 566, 6141, 614126],
+				[0, 85, 191, 293, 6141, 614123],
+				[201, 26, 9, 112, 6141, 614121],
+				[75, 159, 74, 210, 6141, 6109808],
+				[255, 255, 255, 257, 6141, 614101],
+				[228, 205, 158, 380, 6141, 4161734],
+				[172, 120, 186, 95, 6141, 6133802],
+				[88, 42, 18, 165, 6141, 4216581],
+				[160, 165, 169, 277, 6141, 4211525],
+				[108, 110, 104, 216, 6141, 4210633],
+				[208, 145, 104, 153, 6141, 6391270],
+				[87, 88, 87, 432, 6141, 6038201],
+				[10, 52, 99, 423, 6141, 6021623],
+				[54, 174, 191, 139, 6141, 6102986],
+				[173, 195, 192, 194, 6141, 6382504],
+				[169, 85, 0, 55, 6141, 6315782]
+				];
+			return partList;
         default:
             console.log("unknown");
             break;
